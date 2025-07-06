@@ -18,7 +18,6 @@ export const GET = async (req: Request, { params }: Params): Promise<NextRespons
         }
         return NextResponse.json(product, { status: 200 })
     } catch (error) {
-        console.log(error)
         return NextResponse.json({ error: "internal server error" }, { status: 500 })
     }
 };
@@ -26,21 +25,25 @@ export const GET = async (req: Request, { params }: Params): Promise<NextRespons
 export const PUT = async (req: Request, { params }: Params): Promise<NextResponse> => {
     try {
         const body = await req.json()
-        const { id } = await params
-        const { name, sku, price, stock, category, } = body
+        const { id } = params
+        const { name, sku, price, stock, category, discount } = body
         const product = await prisma.product.findUnique({
             where: { id },
         });
         if (!product) {
             return NextResponse.json({ error: "product not found" }, { status: 404 })
         }
-        if (!name || !sku || price == null || stock == null || !category) {
+        if (!name || !sku || price == null || stock == null || !category || !discount) {
             return NextResponse.json({ error: "all fields required" }, { status: 400 })
         }
+
+        const connectCategories = category.map((id: string) => ({id}))
+
         const response = await prisma.product.update({
             where: { id },
             data: {
-                name, sku, price, stock, category
+                name, sku, price, stock, discount,
+                category: connectCategories
             }
         })
         return NextResponse.json(response, { status: 200 })

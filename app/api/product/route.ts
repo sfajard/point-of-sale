@@ -15,8 +15,8 @@ export const GET = async (): Promise<NextResponse> => {
 export const POST = async (req: Request): Promise<NextResponse> => {
     try {
         const body = await req.json()
-        const { name, sku, price, stock, category, } = body
-        if (!name || !sku || price == null || stock == null || !category) {
+        const { name, sku, price, stock, category, discount } = body
+        if (!name || !sku || price == null || stock == null || !category || !discount) {
             return NextResponse.json({ error: "all fields required" }, { status: 400 })
         }
         
@@ -24,7 +24,7 @@ export const POST = async (req: Request): Promise<NextResponse> => {
 
         const response = await prisma.product.create({
             data: {
-                name, sku, price, stock: stock,
+                name, sku, price, stock: stock, discount,
                 category: {
                     connect: connectCategories
                 }
@@ -32,7 +32,6 @@ export const POST = async (req: Request): Promise<NextResponse> => {
         })
         return NextResponse.json(response, { status: 201 })
     } catch (error) {
-        console.log(error)
         return NextResponse.json({ error: "innternal server error" }, { status: 500 })
     }
 }
