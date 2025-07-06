@@ -19,6 +19,7 @@ model Product {
   name String
   sku String
   price Int
+  discount Float
   category Category[]
   stock Int
 }
