@@ -33,7 +33,7 @@ export const PUT = async (req: Request, { params }: Params): Promise<NextRespons
         if (!product) {
             return NextResponse.json({ error: "product not found" }, { status: 404 })
         }
-        if (!name || !sku || price == null || stock == null || !category || !discount) {
+        if (!name || !sku || price == null || stock == null || !category || discount == null) {
             return NextResponse.json({ error: "all fields required" }, { status: 400 })
         }
 

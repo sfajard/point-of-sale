@@ -16,7 +16,7 @@ export const POST = async (req: Request): Promise<NextResponse> => {
     try {
         const body = await req.json()
         const { name, sku, price, stock, category, discount } = body
-        if (!name || !sku || price == null || stock == null || !category || !discount) {
+        if (!name || !sku || price == null || stock == null || !category || discount == null) {
             return NextResponse.json({ error: "all fields required" }, { status: 400 })
         }
         
