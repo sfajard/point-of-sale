@@ -19,7 +19,7 @@ model Product {
   name String
   sku String
   price Int
-  discount Float
+  discount Float @default(0)
   category Category[]
   stock Int
 }
