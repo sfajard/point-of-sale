@@ -20,7 +20,8 @@ model Product {
   sku String
   price Int
   discount Float @default(0)
-  category Category[]
+  categoryId String
+  category Category @relation(fields: [categoryId], references: [id]) 
   stock Int
 }
 
