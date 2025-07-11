@@ -24,9 +24,6 @@ export const POST = async (req: Request): Promise<NextResponse> => {
             return NextResponse.json({ error: "all fields required" }, { status: 400 })
         }
 
-        
-
-
         const response = await prisma.product.create({
             data: {
                 name, sku, price, stock: stock, discount,
