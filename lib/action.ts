@@ -50,5 +50,3 @@ export const addCategory = async (values: z.infer<typeof addCategorySchema>) => 
         console.error('Error adding category:', error)
     }
 }
-
-// Transaction action

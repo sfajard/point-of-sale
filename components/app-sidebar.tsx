@@ -37,7 +37,7 @@ const transactionItems = [
     },
     {
         title: 'Invoice',
-        url: '/dashboard/transaction/invoice',
+        url: '/dashboard/transaction/history',
         icon: HandCoins
     }
 ]

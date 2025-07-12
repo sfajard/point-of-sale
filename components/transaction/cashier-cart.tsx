@@ -9,14 +9,16 @@ interface CashierCartProps {
   products: Product[]
   increaseQuantity: (productId: string) => void
   decreaseQuantity: (productId: string) => void
+  checkout: () => void
 }
 
 interface CartItems {
   productId: string
   quantity: number
+  price?: number
 }
 
-const CashierCart = ({ cartItems, products, increaseQuantity, decreaseQuantity }: CashierCartProps) => {
+const CashierCart = ({ cartItems, products, increaseQuantity, decreaseQuantity, checkout}: CashierCartProps) => {
 
   if (cartItems.length === 0) {
     return (
@@ -72,7 +74,7 @@ const CashierCart = ({ cartItems, products, increaseQuantity, decreaseQuantity }
               <span>Rp. {formatIDR(totalAmount(cartItems))}</span>
             </div>
           </div>
-          <Button className='w-full mt-4'>Proceed to Checkout</Button>
+          <Button onClick={checkout} className='w-full mt-4'>Proceed to Checkout</Button>
         </div>
       </div>
     )

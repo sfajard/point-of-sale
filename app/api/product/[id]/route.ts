@@ -36,10 +36,6 @@ export const PUT = async (req: Request, { params }: Params): Promise<NextRespons
             return NextResponse.json({ error: "product not found" }, { status: 404 })
         }
 
-        if (!name || !sku || typeof price !== 'number' || typeof stock !== 'number' || !categoryId) {
-            return NextResponse.json({ error: "Name, SKU, price, stock, and category are required" }, { status: 400 });
-        }
-
         const response = await prisma.product.update({
             where: { id },
             data: {
@@ -58,7 +54,6 @@ export const DELETE = async (req: Request, { params }: Params): Promise<NextResp
     try {
         const { id } = await params;
 
-        console.log(id)
         const product = await prisma.product.delete({
             where: { id },
         })

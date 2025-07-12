@@ -5,8 +5,9 @@ import { ProductCards, ProductCardSkeleton } from '@/components/transaction/prod
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { getAllProduct } from '@/lib/action'
+import { createTransaction } from '@/lib/transaction'
 import { Product } from '@prisma/client'
-import { MinusCircle, Plus, SearchIcon } from 'lucide-react'
+import { Plus, SearchIcon } from 'lucide-react'
 import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
 
@@ -29,6 +30,29 @@ const page = () => {
             console.log(error)
         } finally {
             setLoading(false)
+        }
+    }
+
+    const checkout = async () => {
+        try {
+            setLoading(true)
+            createTransaction({
+                totalAmount: cartItems.reduce((total, item) => {
+                    const product = products.find(p => p.id === item.productId)
+                    return total + (product ? product.price * item.quantity : 0)
+                }, 0),
+                    transactionItems: cartItems.map(item => ({
+                        productId: item.productId,
+                        quantity: item.quantity,
+                    })),
+                })
+
+                fetchProducts()
+        } catch (error) {
+            console.error('Error during checkout:', error)
+        } finally {
+            setLoading(false)
+            setCartItems([])
         }
     }
 
@@ -103,7 +127,7 @@ const page = () => {
                     </div>
                 </div>
             </div>
-            <CashierCart decreaseQuantity={decreaseQuantity} increaseQuantity={increaseQuantity} cartItems={cartItems} products={products} />
+            <CashierCart checkout={checkout} decreaseQuantity={decreaseQuantity} increaseQuantity={increaseQuantity} cartItems={cartItems} products={products} />
         </div>
     )
 }
