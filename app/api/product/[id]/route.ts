@@ -27,6 +27,7 @@ export const GET = async (req: Request, { params }: Params): Promise<NextRespons
 export const PUT = async (req: Request, { params }: Params): Promise<NextResponse> => {
     try {
         const body = await req.json()
+        console.log('Updating product with body:', body)
         const { id } = await params
         const { name, sku, price, stock, categoryId, discount } = body
         const product = await prisma.product.findUnique({

@@ -18,15 +18,15 @@ export const GET = async (): Promise<NextResponse> => {
 export const POST = async (req: Request): Promise<NextResponse> => {
     try {
         const body = await req.json()
-        const { name, sku, price, stock, categoryId, discount } = body
+        const { name, sku, price, stock, categoryId, discount, imageUrl } = body
 
-        if (!name || !sku || price == null || stock == null || !categoryId) {
+        if (!name || !sku || price == null || stock == null || !categoryId || !imageUrl) {
             return NextResponse.json({ error: "all fields required" }, { status: 400 })
         }
 
         const response = await prisma.product.create({
             data: {
-                name, sku, price, stock: stock, discount,
+                name, sku, price, stock: stock, discount, imageUrl,
                 category: {
                     connect: { id: categoryId}
                 }

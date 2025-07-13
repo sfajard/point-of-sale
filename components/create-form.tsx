@@ -21,7 +21,9 @@ import { Category, Product } from "@prisma/client" // Assuming Product and Categ
 import axios from "axios"
 import { capitalizeEachWord } from "@/lib/capitalized-word" // Utility function
 import { AddCategoryDialog } from "./add-category"
-import { addProduct, updateProduct } from "@/lib/action"
+import { addProduct, inputImage, updateProduct } from "@/lib/action"
+import { uploadImage } from "@/supabase/storage/client"
+import { convertBlobUrlToFile } from "@/lib/utils"
 
 interface ProductFormProps {
     initialProductValue?: InitialProductValues; // Optional, useful for 'add'
@@ -42,6 +44,7 @@ interface InitialProductValues {
 export const ProductForm = ({ initialProductValue, action, productId, onSuccess }: ProductFormProps) => {
     const [categories, setCategories] = useState<Category[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
+    const [imageUrls, setImageUrls] = useState<string[]>([]);
 
     const defaultFormValues: InitialProductValues = {
         name: initialProductValue?.name || '',
@@ -66,7 +69,7 @@ export const ProductForm = ({ initialProductValue, action, productId, onSuccess 
     const handleSubmit = async (values: z.infer<typeof addProductSchema>) => {
         if (action === 'update') {
             setLoading(true)
-            if(!productId) {
+            if (!productId) {
                 return console.error('Product ID is required for update operation.')
             }
             await updateProduct(values, productId);
@@ -74,7 +77,22 @@ export const ProductForm = ({ initialProductValue, action, productId, onSuccess 
             form.reset()
         } else { // action === 'add'
             setLoading(true)
-            await addProduct(values);
+            let urls = [];
+            const imageFile = form.getValues('image');
+            if (imageFile) {
+                const { imageUrl, error } = await uploadImage({
+                    file: imageFile,
+                    bucket: "dank-pics",
+                });
+                if (error) {
+                    console.error(error);
+                    setLoading(false);
+                    return;
+                }
+                urls.push(imageUrl);
+                console.log('Image uploaded:', imageUrl);
+            }
+            console.log(urls);
             setLoading(false)
             form.reset()
         }
@@ -150,26 +168,6 @@ export const ProductForm = ({ initialProductValue, action, productId, onSuccess 
                                 </FormItem>
                             )}
                         />
-                        {/* Add discount field if applicable in your schema */}
-                        {/* <FormField
-                            disabled={loading}
-                            control={form.control}
-                            name="discount"
-                            render={({ field }) => (
-                                <FormItem className="mb-4">
-                                    <FormLabel>Discount (%)</FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            type="number"
-                                            placeholder="Product discount.."
-                                            {...field}
-                                            onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        /> */}
                     </div>
                     <div>
                         <FormField
@@ -194,7 +192,7 @@ export const ProductForm = ({ initialProductValue, action, productId, onSuccess 
                                 <FormItem className="mb-4 flex align-middle items-center">
                                     <div>
                                         <FormLabel className="my-3">Category</FormLabel>
-                                        <Select onValueChange={field.onChange} value={field.value}> {/* Use `value` instead of `defaultValue` with `form.reset` */}
+                                        <Select onValueChange={field.onChange} value={field.value}>
                                             <FormControl>
                                                 <SelectTrigger>
                                                     <SelectValue placeholder="Select a category" />
@@ -210,10 +208,24 @@ export const ProductForm = ({ initialProductValue, action, productId, onSuccess 
                                         </Select>
                                         <FormMessage />
                                     </div>
-                                    <AddCategoryDialog onSuccess={fetchCategories}/>
                                 </FormItem>
                             )}
                         />
+                        <AddCategoryDialog onSuccess={fetchCategories} />
+                        {/*<FormField
+                            disabled={loading}
+                            control={form.control}
+                            name="image"
+                            render={({ field }) => (
+                                <FormItem className="mb-4">
+                                    <FormLabel>Image</FormLabel>
+                                    <FormControl>
+                                        <Input type="file" accept="image/*" onChange={(e) => field.onChange(e.target.files?.[0])} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        /> */}
                     </div>
                 </div>
                 <Button disabled={loading} type="submit" className="m-3">

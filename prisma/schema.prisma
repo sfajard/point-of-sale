@@ -24,6 +24,7 @@ model Product {
   category Category @relation(fields: [categoryId], references: [id]) 
   stock Int @default(0)
   transactionItems TransactionItem[]
+  imageUrl String
 }
 
 model Category {
@@ -51,3 +52,4 @@ model TransactionItem {
   @@index([transactionId])
   @@index([productId])
 }
+

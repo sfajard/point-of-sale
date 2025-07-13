@@ -2,6 +2,8 @@ import { Category, Product } from "@prisma/client";
 import { addCategorySchema, addProductSchema } from "./schema"
 import * as z from "zod"
 import axios from "axios";
+import { convertBlobUrlToFile } from "./utils";
+import { uploadImage } from "@/supabase/storage/client";
 
 // Product action
 const ProductUrl = 'http://localhost:3000/api/product'
@@ -28,6 +30,26 @@ export const updateProduct = async (values: z.infer<typeof addProductSchema>, pr
         await axios.put<Product>(`${ProductUrl}/${productId}`, values)
     } catch (error) {
         console.error('Error updating product:', error)
+    }
+}
+
+export const inputImage = async (imageUrls: string[]) => {
+    let urls: string[] = []
+    try {
+        imageUrls.forEach(async (url: string) => {
+            const imageFile = await convertBlobUrlToFile(url)
+            const { imageUrl, error } = await uploadImage({
+                file: imageFile,
+                bucket: 'pos'
+            })
+
+            urls.push(imageUrl)
+        })
+
+        return urls
+    } catch (error) {
+        console.error('Error uploading images:', error)
+        return []
     }
 }
 
