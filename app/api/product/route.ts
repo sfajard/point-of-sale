@@ -15,26 +15,29 @@ export const GET = async (): Promise<NextResponse> => {
     }
 }
 
-export const POST = async (req: Request): Promise<NextResponse> => {
+export const POST = async (request: Request): Promise<NextResponse> => {
     try {
-        const body = await req.json()
-        const { name, sku, price, stock, categoryId, discount, imageUrl } = body
+        const body = await request.json();
+        const { name, sku, price, stock, categoryId, imageUrl } = body;
 
-        if (!name || !sku || price == null || stock == null || !categoryId || !imageUrl) {
-            return NextResponse.json({ error: "all fields required" }, { status: 400 })
+        if (!name || !sku || !price || !stock || !categoryId || !imageUrl) {
+            return NextResponse.json({ error: "Invalid input data" }, { status: 400 });
         }
 
-        const response = await prisma.product.create({
+        const newProduct = await prisma.product.create({
             data: {
-                name, sku, price, stock: stock, discount, imageUrl,
-                category: {
-                    connect: { id: categoryId}
-                }
+                name,
+                sku,
+                price,
+                stock,
+                categoryId,
+                imageUrl
             }
-        })
-        return NextResponse.json(response, { status: 201 })
+        });
+
+        return NextResponse.json(newProduct, { status: 201 });
     } catch (error) {
-        console.log(error)
-        return NextResponse.json({ error: "innternal server error" }, { status: 500 })
+        console.error('Error creating product:', error);
+        return NextResponse.json({ error: "Failed to create product" }, { status: 500 });
     }
 }

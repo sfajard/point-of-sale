@@ -1,3 +1,8 @@
+import Image from "next/image";
+import { Card, CardContent } from "../ui/card";
+import { Button } from "../ui/button";
+import Link from "next/link";
+
 interface Product {
     id: string;
     name: string;
@@ -8,14 +13,31 @@ interface Product {
 }
 
 interface ProductCardsProps {
-  products: Product[];
+    products: Product[];
 }
 
 const ProductCards = ({ products }: ProductCardsProps) => {
     return (
-        <div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
             {products.map((product) => (
-                <div>{product.name}</div>
+                <Card key={product.id} className="">
+                    <Image
+                        src={product.image}
+                        alt={product.name}
+                        width={200}
+                        height={200}
+                        className="object-cover rounded-lg"
+                        style={{ width: 200, height: 200 }}
+                    />
+                    <CardContent className="flex flex-col">
+                        <Link href={`/products/${product.id}`}>
+                            <h2 className="text-lg font-bold">{product.name}</h2>
+                        </Link>
+                        <p className="text-sm text-gray-500">Price: ${product.price.toFixed(2)}</p>
+                        <p className="text-sm text-gray-500">Rating: {product.rating} ⭐</p>
+                        <p className="text-sm text-gray-500">Sold: {product.sold} items</p>
+                    </CardContent>
+                </Card>
             ))}
         </div>
     )

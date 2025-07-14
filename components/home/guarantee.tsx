@@ -36,6 +36,6 @@ const GuaranteeSection = () => {
 			</div>
 		</section>
 	);
-};
+}
 
 export default GuaranteeSection;
