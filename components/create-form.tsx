@@ -20,10 +20,11 @@ import { useEffect, useState } from "react"
 import { Category, Product } from "@prisma/client" // Assuming Product and Category types from Prisma
 import axios from "axios"
 import { capitalizeEachWord } from "@/lib/capitalized-word" // Utility function
-import { AddCategoryDialog } from "./add-category"
+import { AddCategoryDialog } from "./product/add-category"
 import { addProduct, inputImage, updateProduct } from "@/lib/action"
 import { uploadImage } from "@/supabase/storage/client"
 import { convertBlobUrlToFile } from "@/lib/utils"
+import Image from "next/image"
 
 interface ProductFormProps {
     initialProductValue?: InitialProductValues; // Optional, useful for 'add'
@@ -39,6 +40,7 @@ interface InitialProductValues {
     stock: number
     categoryId: string
     discount?: number | null
+    image?: File | undefined; // Optional for 'add' action
 }
 
 export const ProductForm = ({ initialProductValue, action, productId, onSuccess }: ProductFormProps) => {
@@ -53,6 +55,7 @@ export const ProductForm = ({ initialProductValue, action, productId, onSuccess 
         stock: initialProductValue?.stock || 0,
         categoryId: initialProductValue?.categoryId || '',
         discount: initialProductValue?.discount || null,
+        image: initialProductValue?.image || undefined
     };
 
     const form = useForm<z.infer<typeof addProductSchema>>({
@@ -70,6 +73,7 @@ export const ProductForm = ({ initialProductValue, action, productId, onSuccess 
         if (action === 'update') {
             setLoading(true)
             if (!productId) {
+                setLoading(false);
                 return console.error('Product ID is required for update operation.')
             }
             await updateProduct(values, productId);
@@ -77,24 +81,29 @@ export const ProductForm = ({ initialProductValue, action, productId, onSuccess 
             form.reset()
         } else { // action === 'add'
             setLoading(true)
-            let urls = [];
-            const imageFile = form.getValues('image');
-            if (imageFile) {
-                const { imageUrl, error } = await uploadImage({
-                    file: imageFile,
-                    bucket: "dank-pics",
-                });
-                if (error) {
-                    console.error(error);
-                    setLoading(false);
-                    return;
+            // Gunakan imageUrls jika sudah ada hasil upload
+            let urls = imageUrls.length > 0 ? imageUrls : [];
+            // Jika belum ada imageUrls, upload dari form
+            if (urls.length === 0) {
+                const imageFile = form.getValues('image');
+                if (imageFile) {
+                    const { imageUrl, error } = await uploadImage({
+                        file: imageFile,
+                        bucket: "dank-pics",
+                    });
+                    if (error) {
+                        console.error(error);
+                        setLoading(false);
+                        return;
+                    }
+                    urls = [imageUrl];
+                    setImageUrls(urls);
                 }
-                urls.push(imageUrl);
-                console.log('Image uploaded:', imageUrl);
             }
-            console.log(urls);
+            addProduct(values, urls);
             setLoading(false)
             form.reset()
+            setImageUrls([]);
         }
     };
 
@@ -114,7 +123,7 @@ export const ProductForm = ({ initialProductValue, action, productId, onSuccess 
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10"> {/* Using grid for better responsiveness */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10">
                     <div>
                         <FormField
                             disabled={loading}
@@ -212,7 +221,7 @@ export const ProductForm = ({ initialProductValue, action, productId, onSuccess 
                             )}
                         />
                         <AddCategoryDialog onSuccess={fetchCategories} />
-                        {/*<FormField
+                        <FormField
                             disabled={loading}
                             control={form.control}
                             name="image"
@@ -220,12 +229,41 @@ export const ProductForm = ({ initialProductValue, action, productId, onSuccess 
                                 <FormItem className="mb-4">
                                     <FormLabel>Image</FormLabel>
                                     <FormControl>
-                                        <Input type="file" accept="image/*" onChange={(e) => field.onChange(e.target.files?.[0])} />
+                                        <Input
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={async (e) => {
+                                                const file = e.target.files?.[0];
+                                                field.onChange(file);
+                                                if (file) {
+                                                    setLoading(true);
+                                                    const { imageUrl, error } = await uploadImage({
+                                                        file,
+                                                        bucket: "dank-pics",
+                                                    });
+                                                    setLoading(false);
+                                                    if (error) {
+                                                        console.error(error);
+                                                        return;
+                                                    }
+                                                    setImageUrls([imageUrl]);
+                                                }
+                                            }}
+                                        />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}
-                        /> */}
+                        />
+                        <div>
+                            <Image 
+                                src={imageUrls[0]}
+                                alt="Product Image"
+                                width={200}
+                                height={200}
+                                className="object-cover rounded-lg"
+                            />
+                        </div>
                     </div>
                 </div>
                 <Button disabled={loading} type="submit" className="m-3">

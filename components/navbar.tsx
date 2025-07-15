@@ -110,6 +110,11 @@ const Navbar = ({ userEmail, userName = "User", userAvatarUrl }: NavbarProps) =>
                                 Buy
                             </NavigationMenuLink>
                         </NavigationMenuItem>
+                        <NavigationMenuItem>
+                            <NavigationMenuLink href='/dashboard'>
+                                Dashboard
+                            </NavigationMenuLink>
+                        </NavigationMenuItem>
                     </NavigationMenuList>
                 </NavigationMenu>
                 <div className="flex gap-5 align-center">

@@ -1,11 +1,12 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { Button } from './ui/button';
+import { Button } from '../ui/button';
 import { Edit2, Trash2 } from 'lucide-react';
 import axios from 'axios';
-import { Skeleton } from './ui/skeleton';
+import { Skeleton } from '../ui/skeleton';
 import { capitalizeEachWord } from '@/lib/capitalized-word';
 import Link from 'next/link';
-import { DeleteAlert } from './delete-alert';
+import { DeleteAlert } from '../delete-alert';
+import Image from 'next/image';
 
 // Assuming Category type from Prisma Client is available
 // and includes 'name' and 'id'
@@ -22,7 +23,7 @@ interface Product {
   stock: number;
   categoryId: string;
   category?: Category;
-  image?: string; // tambahkan field image
+  imageUrl?: string; // tambahkan field image
 }
 
 interface ProductTableProps {
@@ -114,8 +115,13 @@ const ProductTable = ({ selectedCategoryId }: ProductTableProps) => {
                 {product.category ? capitalizeEachWord(product.category.name) : "Tidak ada kategori"}
               </p>
               <div className="col-span-1">
-                {product.image ? (
-                  <img src={product.image} alt={product.name} className="h-12 w-12 object-cover rounded" />
+                {product.imageUrl ? (
+                  <Image
+                  src={product.imageUrl} 
+                  alt={product.name}
+                  height={50}
+                  width={50}
+                  className="h-12 w-12 object-cover rounded" />
                 ) : (
                   <span className="text-xs text-muted-foreground">No image</span>
                 )}

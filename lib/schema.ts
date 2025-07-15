@@ -13,7 +13,7 @@ export const addProductSchema = z.object({
     .refine(file => file.type.startsWith('image/'), {}).refine(file => file.size <= 5 * 1024 * 1024, {
         message: 'Image size must be less than 5MB',
     })
-    .refine(file => ['image/jpeg', 'image/png', 'image/gif'].includes(file.type), {
+    .refine(file => ['image/jpeg', 'image/png', 'image/gif', 'image/webp'].includes(file.type), {
         message: 'Image must be a JPEG, PNG, or GIF',
     })
 })

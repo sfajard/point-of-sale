@@ -17,9 +17,12 @@ export const getAllProduct = async () => {
     }
 }
 
-export const addProduct = async (values: z.infer<typeof addProductSchema>) => {
+export const addProduct = async (values: z.infer<typeof addProductSchema>, imageUrl: String[]) => {
     try {
-        await axios.post<Product>(ProductUrl, values)
+        await axios.post<Product>(ProductUrl, {
+            ...values,
+            imageUrl: imageUrl.length > 0 ? imageUrl[0] : undefined // Use the first image URL if available
+        })
     } catch (error) {
         console.error('Error adding product:', error)
     }
