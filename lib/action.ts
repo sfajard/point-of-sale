@@ -17,12 +17,9 @@ export const getAllProduct = async () => {
     }
 }
 
-export const addProduct = async (values: z.infer<typeof addProductSchema>, imageUrl: String[]) => {
+export const addProduct = async (values: z.infer<typeof addProductSchema>) => {
     try {
-        await axios.post<Product>(ProductUrl, {
-            ...values,
-            imageUrl: imageUrl.length > 0 ? imageUrl[0] : undefined // Use the first image URL if available
-        })
+        await axios.post<Product>(ProductUrl, values)
     } catch (error) {
         console.error('Error adding product:', error)
     }
@@ -67,6 +64,15 @@ export const deleteProduct = async (productId: string) => {
 
 // Category action
 const categoryUrl = 'http://localhost:3000/api/category'
+
+export const getAllCategoties = async () => {
+    try {
+        const response = await axios.get(categoryUrl)
+        return response.data
+    } catch (error) {
+        console.error('Error fetching category:', error)
+    }
+}
 
 export const addCategory = async (values: z.infer<typeof addCategorySchema>) => {
     try {

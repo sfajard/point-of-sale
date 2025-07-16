@@ -14,7 +14,7 @@ const ProductCards = ({ products }: ProductCardsProps) => {
             {products.map((product) => (
                 <Card key={product.id} className="">
                     <Image
-                        src={product.imageUrl}
+                        src={product.imageUrls[0]}
                         alt={product.name}
                         width={200}
                         height={200}

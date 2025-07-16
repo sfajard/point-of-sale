@@ -40,7 +40,7 @@ interface InitialProductValues {
     stock: number
     categoryId: string
     discount?: number | null
-    image?: File | undefined; // Optional for 'add' action
+    image?: File | undefined
 }
 
 export const ProductForm = ({ initialProductValue, action, productId, onSuccess }: ProductFormProps) => {
@@ -79,197 +79,206 @@ export const ProductForm = ({ initialProductValue, action, productId, onSuccess 
             await updateProduct(values, productId);
             setLoading(false)
             form.reset()
-        } else { // action === 'add'
-            setLoading(true)
-            // Gunakan imageUrls jika sudah ada hasil upload
-            let urls = imageUrls.length > 0 ? imageUrls : [];
-            // Jika belum ada imageUrls, upload dari form
-            if (urls.length === 0) {
-                const imageFile = form.getValues('image');
-                if (imageFile) {
-                    const { imageUrl, error } = await uploadImage({
-                        file: imageFile,
-                        bucket: "dank-pics",
-                    });
-                    if (error) {
-                        console.error(error);
-                        setLoading(false);
-                        return;
-                    }
-                    urls = [imageUrl];
-                    setImageUrls(urls);
-                }
+        } else {
+            try {
+                // 'values' sekarang akan berisi 'name', 'imageUrls' (array URL), dan 'isFeatured'
+                // Pastikan addCategory (server action Anda) siap menerima 'imageUrls' sebagai array of string
+                await addProduct(values);
+                form.reset(); // Reset form setelah sukses
+            } catch (error) {
+                console.error("Gagal menambahkan kategori:", error);
+                // Tambahkan notifikasi toast di sini
+            } finally {
+                setLoading(false);
             }
-            addProduct(values, urls);
-            setLoading(false)
-            form.reset()
-            setImageUrls([]);
         }
-    };
+        addProduct(values);
+        setLoading(false)
+        form.reset()
+        setImageUrls([]);
+    }
+};
 
-    const fetchCategories = async () => {
-        try {
-            const response = await axios.get<Category[]>('http://localhost:3000/api/category');
-            setCategories(response.data);
-        } catch (error) {
-            console.error('Error fetching categories:', error);
-        }
-    };
+const fetchCategories = async () => {
+    try {
+        const response = await axios.get<Category[]>('http://localhost:3000/api/category');
+        setCategories(response.data);
+    } catch (error) {
+        console.error('Error fetching categories:', error);
+    }
+};
 
-    useEffect(() => {
-        fetchCategories();
-    }, [])
+useEffect(() => {
+    fetchCategories();
+}, [])
 
-    return (
-        <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10">
-                    <div>
-                        <FormField
-                            disabled={loading}
-                            control={form.control}
-                            name="name"
-                            render={({ field }) => (
-                                <FormItem className="mb-4">
-                                    <FormLabel>Name</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="Product name.." {...field} />
-                                    </FormControl>
+return (
+    <Form {...form}>
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10">
+                <div>
+                    <FormField
+                        disabled={loading}
+                        control={form.control}
+                        name="name"
+                        render={({ field }) => (
+                            <FormItem className="mb-4">
+                                <FormLabel>Name</FormLabel>
+                                <FormControl>
+                                    <Input placeholder="Product name.." {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        disabled={loading}
+                        control={form.control}
+                        name="price"
+                        render={({ field }) => (
+                            <FormItem className="mb-4">
+                                <FormLabel>Price</FormLabel>
+                                <FormControl>
+                                    <Input
+                                        type="number"
+                                        placeholder="Product price.."
+                                        {...field}
+                                        onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        disabled={loading}
+                        control={form.control}
+                        name="stock"
+                        render={({ field }) => (
+                            <FormItem className="mb-4">
+                                <FormLabel>Stock</FormLabel>
+                                <FormControl>
+                                    <Input
+                                        type="number"
+                                        placeholder="Product stock.."
+                                        {...field}
+                                        onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                </div>
+                <div>
+                    <FormField
+                        disabled={loading}
+                        control={form.control}
+                        name="sku"
+                        render={({ field }) => (
+                            <FormItem className="mb-4">
+                                <FormLabel>SKU</FormLabel>
+                                <FormControl>
+                                    <Input placeholder="Product SKU.." {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        disabled={loading}
+                        control={form.control}
+                        name="categoryId"
+                        render={({ field }) => (
+                            <FormItem className="mb-4 flex align-middle items-center">
+                                <div>
+                                    <FormLabel className="my-3">Category</FormLabel>
+                                    <Select onValueChange={field.onChange} value={field.value}>
+                                        <FormControl>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select a category" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            {categories.map((category) => (
+                                                <SelectItem key={category.id} value={category.id}>
+                                                    {capitalizeEachWord(category.name)}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
                                     <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            disabled={loading}
-                            control={form.control}
-                            name="price"
-                            render={({ field }) => (
-                                <FormItem className="mb-4">
-                                    <FormLabel>Price</FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            type="number"
-                                            placeholder="Product price.."
-                                            {...field}
-                                            onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            disabled={loading}
-                            control={form.control}
-                            name="stock"
-                            render={({ field }) => (
-                                <FormItem className="mb-4">
-                                    <FormLabel>Stock</FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            type="number"
-                                            placeholder="Product stock.."
-                                            {...field}
-                                            onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                    </div>
-                    <div>
-                        <FormField
-                            disabled={loading}
-                            control={form.control}
-                            name="sku"
-                            render={({ field }) => (
-                                <FormItem className="mb-4">
-                                    <FormLabel>SKU</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="Product SKU.." {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            disabled={loading}
-                            control={form.control}
-                            name="categoryId"
-                            render={({ field }) => (
-                                <FormItem className="mb-4 flex align-middle items-center">
-                                    <div>
-                                        <FormLabel className="my-3">Category</FormLabel>
-                                        <Select onValueChange={field.onChange} value={field.value}>
-                                            <FormControl>
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder="Select a category" />
-                                                </SelectTrigger>
-                                            </FormControl>
-                                            <SelectContent>
-                                                {categories.map((category) => (
-                                                    <SelectItem key={category.id} value={category.id}>
-                                                        {capitalizeEachWord(category.name)}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                        <FormMessage />
-                                    </div>
-                                </FormItem>
-                            )}
-                        />
-                        <AddCategoryDialog onSuccess={fetchCategories} />
-                        <FormField
-                            disabled={loading}
-                            control={form.control}
-                            name="image"
-                            render={({ field }) => (
-                                <FormItem className="mb-4">
-                                    <FormLabel>Image</FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            type="file"
-                                            accept="image/*"
-                                            onChange={async (e) => {
-                                                const file = e.target.files?.[0];
-                                                field.onChange(file);
-                                                if (file) {
-                                                    setLoading(true);
+                                </div>
+                            </FormItem>
+                        )}
+                    />
+                    <AddCategoryDialog onSuccess={fetchCategories} />
+                    <FormField
+                        disabled={loading}
+                        control={form.control}
+                        name="imageUrls" // Nama field ini sesuai dengan skema Zod
+                        render={({ field }) => (
+                            <FormItem className="mb-4">
+                                <FormLabel>Gambar Kategori</FormLabel>
+                                <FormControl>
+                                    <Input
+                                        type="file"
+                                        accept="image/*"
+                                        multiple // <-- Tambahkan atribut multiple di sini
+                                        onChange={async (e) => {
+                                            const files = Array.from(e.target.files || []); // Dapatkan semua file yang dipilih
+                                            if (files.length > 0) {
+                                                setLoading(true);
+                                                const uploadedUrls: string[] = [];
+
+                                                // Iterasi dan unggah setiap file
+                                                for (const file of files) {
                                                     const { imageUrl, error } = await uploadImage({
                                                         file,
                                                         bucket: "dank-pics",
                                                     });
-                                                    setLoading(false);
+
                                                     if (error) {
-                                                        console.error(error);
-                                                        return;
+                                                        console.error("Error mengunggah gambar:", error);
+                                                        // Lanjutkan atau hentikan sesuai kebutuhan Anda
+                                                        continue; // Lanjutkan ke file berikutnya jika ada error pada satu file
                                                     }
-                                                    setImageUrls([imageUrl]);
+                                                    if (imageUrl) {
+                                                        uploadedUrls.push(imageUrl);
+                                                    }
                                                 }
-                                            }}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
+
+                                                setLoading(false);
+
+                                                // Perbarui state form React Hook Form dengan URL gambar baru
+                                                // Gunakan callback untuk memastikan Anda bekerja dengan state terbaru
+                                                field.onChange([...(field.value || []), ...uploadedUrls]);
+                                                // Penting: Kosongkan input file agar bisa memilih file yang sama lagi
+                                                e.target.value = '';
+                                            }
+                                        }}
+                                    // value={undefined} // Tidak diperlukan lagi karena kita mengelola nilai input file secara manual
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <div>
+                        <Image
+                            src={imageUrls[0]}
+                            alt="Product Image"
+                            width={200}
+                            height={200}
+                            className="object-cover rounded-lg"
                         />
-                        <div>
-                            <Image 
-                                src={imageUrls[0]}
-                                alt="Product Image"
-                                width={200}
-                                height={200}
-                                className="object-cover rounded-lg"
-                            />
-                        </div>
                     </div>
                 </div>
-                <Button disabled={loading} type="submit" className="m-3">
-                    {action === 'update' ? 'Update Product' : 'Add Product'}
-                </Button>
-            </form>
-        </Form>
-    );
+            </div>
+            <Button disabled={loading} type="submit" className="m-3">
+                {action === 'update' ? 'Update Product' : 'Add Product'}
+            </Button>
+        </form>
+    </Form>
+);
 };

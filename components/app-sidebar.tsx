@@ -21,6 +21,11 @@ const productItems = [
         title: "Add Product",
         url: "/dashboard/products/add",
         icon: Plus
+    },
+    {
+        title: "Add Category",
+        url: "/dashboard/products/category",
+        icon: Plus
     }
 ]
 

@@ -15,15 +15,17 @@ export const GET = async (): Promise<NextResponse> => {
 export const POST = async (req: Request): Promise<NextResponse> => {
     try {
         const body = await req.json()
-        const { name } = body
-        if (!name) {
+        const { name, isFeatured, imageUrls } = body
+        if (!name || !imageUrls) {
             return NextResponse.json({ error: "all fields required" }, { status: 400 })
         }
+
         const response = await prisma.category.create({
             data: {
-                name
+                name, isFeatured, imageUrls
             }
         })
+        
         return NextResponse.json(response, { status: 201 })
     } catch (error) {
         console.log(error)

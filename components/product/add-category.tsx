@@ -16,6 +16,7 @@ import { useForm } from "react-hook-form"
 import z from "zod"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form"
 import { addCategory } from "@/lib/action"
+import { Switch } from "../ui/switch"
 
 interface AddCategoryDialogProps {
     onSuccess?: () => void
@@ -26,15 +27,16 @@ export function AddCategoryDialog({ onSuccess }: AddCategoryDialogProps) {
     const [open, setOpen] = useState<boolean>(false)
 
     const formDefaultValues = {
-        name: ''
+        name: '',
+        isFeatured: false
     }
 
-    const form = useForm<z.infer<typeof addCategorySchema>>({
+    const form = useForm<any>({
         resolver: zodResolver(addCategorySchema),
         defaultValues: formDefaultValues
     })
 
-    const handleSubmit = async (values: z.infer<typeof addCategorySchema>) => {
+    const handleSubmit = async (values: any) => {
         try {
             setLoading(true)
             await addCategory(values)
@@ -74,6 +76,24 @@ export function AddCategoryDialog({ onSuccess }: AddCategoryDialogProps) {
                                             />
                                         </FormControl>
                                         <FormMessage /> 
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="isFeatured"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel htmlFor="isFeatured">Featured Category</FormLabel>
+                                        <FormControl>
+                                            <Switch
+                                                id="isFeatured"
+                                                checked={field.value}
+                                                onCheckedChange={field.onChange}
+                                                disabled={loading}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
                                     </FormItem>
                                 )}
                             />
