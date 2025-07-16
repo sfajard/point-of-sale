@@ -1,11 +1,16 @@
+'use client'
+
 import Link from 'next/link'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger } from './ui/navigation-menu'
 import { ChevronDown, CircleCheckIcon, CircleHelpIcon, CircleIcon, HeartIcon, ShoppingCart } from 'lucide-react'
 import { ThemeButton } from './theme-button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from './ui/dropdown-menu'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import { Button } from './ui/button'
+import { Category } from '@prisma/client'
+import { getAllCategoties } from '@/lib/action'
+import { capitalizeEachWord } from '@/lib/capitalized-word'
 
 interface NavbarProps {
     userEmail: string;
@@ -14,6 +19,22 @@ interface NavbarProps {
 }
 
 const Navbar = ({ userEmail, userName = "User", userAvatarUrl }: NavbarProps) => {
+    const [categories, setCategories] = React.useState<Category[]>([])
+
+    const fetchCategory = async () => {
+        try {
+            const categories = await getAllCategoties()
+            setCategories(categories)
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    useEffect(() => {
+        fetchCategory()
+        console.log(categories)
+    }, [])
+
     return (
         <nav className="sticky top-0 z-40 w-full bg-background px-4 py-3 shadow-sm border-b">
             <div className="flex items-center justify-between h-10 px-4">
@@ -88,19 +109,21 @@ const Navbar = ({ userEmail, userName = "User", userAvatarUrl }: NavbarProps) =>
                             </NavigationMenuContent>
                         </NavigationMenuItem>
                         <NavigationMenuItem>
-                            <NavigationMenuTrigger>Blog</NavigationMenuTrigger>
+                            <NavigationMenuTrigger>Category</NavigationMenuTrigger>
                             <NavigationMenuContent>
                                 <ul className="grid w-[200px] gap-4">
                                     <li>
-                                        <NavigationMenuLink asChild>
-                                            <Link href="#">Components</Link>
-                                        </NavigationMenuLink>
-                                        <NavigationMenuLink asChild>
+                                        {categories.filter(category => category.isFeatured).map((category) => (
+                                            <NavigationMenuLink key={category.id} asChild>
+                                                <Link href="#">{capitalizeEachWord(category.name)}</Link>
+                                            </NavigationMenuLink>
+                                        ))}
+                                        {/* <NavigationMenuLink asChild>
                                             <Link href="#">Documentation</Link>
                                         </NavigationMenuLink>
                                         <NavigationMenuLink asChild>
                                             <Link href="#">Blocks</Link>
-                                        </NavigationMenuLink>
+                                        </NavigationMenuLink> */}
                                     </li>
                                 </ul>
                             </NavigationMenuContent>
@@ -108,6 +131,11 @@ const Navbar = ({ userEmail, userName = "User", userAvatarUrl }: NavbarProps) =>
                         <NavigationMenuItem>
                             <NavigationMenuLink>
                                 Buy
+                            </NavigationMenuLink>
+                        </NavigationMenuItem>
+                        <NavigationMenuItem>
+                            <NavigationMenuLink href='/dashboard'>
+                                Dashboard
                             </NavigationMenuLink>
                         </NavigationMenuItem>
                     </NavigationMenuList>

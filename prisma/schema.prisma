@@ -17,7 +17,7 @@ datasource db {
 model Product {
   id String @id @default(uuid())
   name String
-  sku String
+  sku String @unique
   price Int
   discount Float @default(0)
   sold Int @default(0)
@@ -30,12 +30,14 @@ model Product {
   category Category @relation(fields: [categoryId], references: [id]) 
   stock Int @default(0)
   transactionItems TransactionItem[]
-  imageUrl String
+  imageUrls String[]
 }
 
 model Category {
   id String @id @default(uuid())
   name String
+  isFeatured Boolean @default(false)
+  imageUrls String[]
   products Product[]
 }
 

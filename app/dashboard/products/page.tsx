@@ -4,12 +4,12 @@ import * as React from "react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { CategorySelect } from "@/components/category-select"
-import ProductTable from "@/components/product-table"
+import ProductTable from "@/components/product/product-table"
 
 const ProductsPage = () => {
   const [selectedCategoryId, setSelectedCategoryId] = React.useState<
     string | undefined
-  >(undefined);
+  >(undefined)
 
   const handleCategoryChange = (newCategoryId: string) => {
     setSelectedCategoryId(newCategoryId)

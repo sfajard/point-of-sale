@@ -2,15 +2,7 @@ import Image from "next/image";
 import { Card, CardContent } from "../ui/card";
 import { Button } from "../ui/button";
 import Link from "next/link";
-
-interface Product {
-    id: string;
-    name: string;
-    price: number;
-    image: string;
-    rating: number;
-    sold: number;
-}
+import { Product } from "@prisma/client";
 
 interface ProductCardsProps {
     products: Product[];
@@ -22,7 +14,7 @@ const ProductCards = ({ products }: ProductCardsProps) => {
             {products.map((product) => (
                 <Card key={product.id} className="">
                     <Image
-                        src={product.image}
+                        src={product.imageUrls[0]}
                         alt={product.name}
                         width={200}
                         height={200}
@@ -36,6 +28,9 @@ const ProductCards = ({ products }: ProductCardsProps) => {
                         <p className="text-sm text-gray-500">Price: ${product.price.toFixed(2)}</p>
                         <p className="text-sm text-gray-500">Rating: {product.rating} ⭐</p>
                         <p className="text-sm text-gray-500">Sold: {product.sold} items</p>
+                        <Button variant={'outline'} className="mt-2 cursor-pointer">
+                            Add to Cart
+                        </Button>
                     </CardContent>
                 </Card>
             ))}

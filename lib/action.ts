@@ -65,6 +65,15 @@ export const deleteProduct = async (productId: string) => {
 // Category action
 const categoryUrl = 'http://localhost:3000/api/category'
 
+export const getAllCategoties = async () => {
+    try {
+        const response = await axios.get(categoryUrl)
+        return response.data
+    } catch (error) {
+        console.error('Error fetching category:', error)
+    }
+}
+
 export const addCategory = async (values: z.infer<typeof addCategorySchema>) => {
     try {
         await axios.post<Category>(categoryUrl, values)
