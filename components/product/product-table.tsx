@@ -23,7 +23,7 @@ interface Product {
   stock: number;
   categoryId: string;
   category?: Category;
-  imageUrl?: string; // tambahkan field image
+  imageUrls?: string; // tambahkan field image
 }
 
 interface ProductTableProps {
@@ -115,9 +115,9 @@ const ProductTable = ({ selectedCategoryId }: ProductTableProps) => {
                 {product.category ? capitalizeEachWord(product.category.name) : "Tidak ada kategori"}
               </p>
               <div className="col-span-1">
-                {product.imageUrl ? (
+                {product.imageUrls ? (
                   <Image
-                  src={product.imageUrl} 
+                  src={product.imageUrls[0]} 
                   alt={product.name}
                   height={50}
                   width={50}

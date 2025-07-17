@@ -31,6 +31,7 @@ model Product {
   stock Int @default(0)
   transactionItems TransactionItem[]
   imageUrls String[]
+  cart Cart[]
 }
 
 model Category {
@@ -47,6 +48,11 @@ model Transaction {
   totalAmount Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Cart {
+  id String @id @default(uuid())
+  products Product[]
 }
 
 model TransactionItem {

@@ -10,7 +10,8 @@ const page = () => {
     price: 0,
     sku: '',
     stock: 0,
-    categoryId: ''
+    categoryId: '',
+    image: undefined
   }
   return (
     <div>

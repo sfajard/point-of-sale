@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
 import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger } from './ui/navigation-menu'
-import { ChevronDown, CircleCheckIcon, CircleHelpIcon, CircleIcon, HeartIcon, ShoppingCart } from 'lucide-react'
+import { ChevronDown, HeartIcon, ShoppingBag, ShoppingCart } from 'lucide-react'
 import { ThemeButton } from './theme-button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from './ui/dropdown-menu'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
@@ -113,17 +113,14 @@ const Navbar = ({ userEmail, userName = "User", userAvatarUrl }: NavbarProps) =>
                             <NavigationMenuContent>
                                 <ul className="grid w-[200px] gap-4">
                                     <li>
-                                        {categories.filter(category => category.isFeatured).map((category) => (
-                                            <NavigationMenuLink key={category.id} asChild>
-                                                <Link href="#">{capitalizeEachWord(category.name)}</Link>
-                                            </NavigationMenuLink>
-                                        ))}
-                                        {/* <NavigationMenuLink asChild>
-                                            <Link href="#">Documentation</Link>
-                                        </NavigationMenuLink>
-                                        <NavigationMenuLink asChild>
-                                            <Link href="#">Blocks</Link>
-                                        </NavigationMenuLink> */}
+                                        {Array.isArray(categories) &&
+                                            categories
+                                                .filter((category) => category.isFeatured)
+                                                .map((category) => (
+                                                    <NavigationMenuLink key={category.id} asChild>
+                                                        <Link href="#">{capitalizeEachWord(category.name)}</Link>
+                                                    </NavigationMenuLink>
+                                                ))}
                                     </li>
                                 </ul>
                             </NavigationMenuContent>
@@ -142,7 +139,7 @@ const Navbar = ({ userEmail, userName = "User", userAvatarUrl }: NavbarProps) =>
                 </NavigationMenu>
                 <div className="flex gap-5 align-center">
                     <Button variant={'ghost'} size={'icon'} className='cursor-pointer'>
-                        <ShoppingCart />
+                        <Link href='/cart'><ShoppingBag /></Link>
                     </Button>
                     <Button variant={'ghost'} size={'icon'} className='cursor-pointer'>
                         <HeartIcon />
