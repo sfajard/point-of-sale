@@ -17,9 +17,19 @@ export const getAllProduct = async () => {
     }
 }
 
+export const getProductById = async (productId: string) => {
+    try {
+        const response = await axios.get(`${ProductUrl}/${productId}`)
+        return response.data
+    } catch (error) {
+        console.log(error)
+    }
+}
+
 export const addProduct = async (values: z.infer<typeof addProductSchema>) => {
     try {
         await axios.post<Product>(ProductUrl, values)
+        console.log('test')
     } catch (error) {
         console.error('Error adding product:', error)
     }
@@ -59,6 +69,17 @@ export const deleteProduct = async (productId: string) => {
         await axios.delete<Product>(`http://localhost:3000/api/product/${productId}`)
     } catch (error) {
         console.error('Error deleting product:', error)
+    }
+}
+
+export const checkout = async (productId: string) => {
+    if (!productId) return console.log('Product id required')
+    try {
+        const product = await prisma?.product.findUnique({
+            where: {id: productId}
+        })
+    } catch (error) {
+        console.log(error)
     }
 }
 

@@ -3,6 +3,7 @@ import { Card, CardContent } from "../ui/card";
 import { Button } from "../ui/button";
 import Link from "next/link";
 import { Product } from "@prisma/client";
+import { formatIDR } from "@/lib/utils";
 
 interface ProductCardsProps {
     products: Product[];
@@ -22,10 +23,10 @@ const ProductCards = ({ products }: ProductCardsProps) => {
                         style={{ width: 200, height: 200 }}
                     />
                     <CardContent className="flex flex-col">
-                        <Link href={`/products/${product.id}`}>
+                        <Link href={`${product.id}`}>
                             <h2 className="text-lg font-bold">{product.name}</h2>
                         </Link>
-                        <p className="text-sm text-gray-500">Price: ${product.price.toFixed(2)}</p>
+                        <p className="text-sm text-gray-500">Price: ${formatIDR(product.price)}</p>
                         <p className="text-sm text-gray-500">Rating: {product.rating} ⭐</p>
                         <p className="text-sm text-gray-500">Sold: {product.sold} items</p>
                         <Button variant={'outline'} className="mt-2 cursor-pointer">
