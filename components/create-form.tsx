@@ -31,6 +31,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { AddCategoryDialog } from "./product/add-category"
+import { toast } from "sonner"
 
 interface ProductFormProps {
   initialProductValue?: InitialProductValues
@@ -42,12 +43,12 @@ interface ProductFormProps {
 interface InitialProductValues {
   name: string
   price: number
-  sku: string
   stock: number
   categoryId: string
   discount?: number | null
+  isFeatured: boolean
   image?: File | undefined
-  imageUrls?: string[] // optional, for update form
+  imageUrls?: string[]
 }
 
 export const ProductForm = ({
@@ -61,14 +62,15 @@ export const ProductForm = ({
   const [imageUrls, setImageUrls] = useState<string[]>(
     initialProductValue?.imageUrls || []
   )
+  const [toastMessage, setToastMessage] = useState<string>('')
 
   const form = useForm<z.infer<typeof addProductSchema>>({
     resolver: zodResolver(addProductSchema),
     defaultValues: {
       name: initialProductValue?.name || "",
       price: initialProductValue?.price || 0,
-      sku: initialProductValue?.sku || "",
       stock: initialProductValue?.stock || 0,
+      isFeatured: initialProductValue?.isFeatured || false,
       categoryId: initialProductValue?.categoryId || "",
       imageUrls: initialProductValue?.imageUrls || [],
     },
@@ -106,8 +108,10 @@ export const ProductForm = ({
           throw new Error("Product ID is required for update operation.")
         }
         await updateProduct(values, productId)
+        toast.success("Produk berhasil diperbarui")
       } else {
         await addProduct(values)
+        toast.success("Produk berhasil ditambahkan")
       }
 
       form.reset()
@@ -115,6 +119,7 @@ export const ProductForm = ({
       onSuccess?.()
     } catch (error) {
       console.error("Gagal menyimpan produk:", error)
+      toast.error("Gagal menyimpan produk")
     } finally {
       setLoading(false)
     }
@@ -182,24 +187,31 @@ export const ProductForm = ({
                 </FormItem>
               )}
             />
-          </div>
-
-          {/* KANAN */}
-          <div>
             <FormField
               disabled={loading}
               control={form.control}
-              name="sku"
+              name="isFeatured"
               render={({ field }) => (
-                <FormItem className="mb-4">
-                  <FormLabel>SKU</FormLabel>
+                <FormItem className="mb-4 flex items-center space-x-2">
                   <FormControl>
-                    <Input placeholder="Product SKU.." {...field} />
+                    <input
+                      type="checkbox"
+                      id="isFeatured"
+                      checked={field.value}
+                      onChange={e => field.onChange(e.target.checked)}
+                      className="accent-primary w-5 h-5"
+                      disabled={loading}
+                    />
                   </FormControl>
+                  <FormLabel htmlFor="isFeatured">Featured</FormLabel>
                   <FormMessage />
                 </FormItem>
               )}
             />
+          </div>
+
+          {/* KANAN */}
+          <div>
             <FormField
               disabled={loading}
               control={form.control}
@@ -273,17 +285,31 @@ export const ProductForm = ({
             />
 
             {/* Preview image (hanya pertama untuk contoh) */}
-            {imageUrls[0] && (
-              <div className="mt-4">
-                <Image
-                  src={imageUrls[0]}
-                  alt="Product"
-                  width={200}
-                  height={200}
-                  className="object-cover rounded-lg"
-                />
-              </div>
-            )}
+            <div className="flex flex-wrap items-center gap-2 mb-4">
+              {imageUrls && imageUrls.map((url, index) => (
+                <div key={url} className="relative">
+                  <Image
+                    src={url}
+                    alt={`Pratinjau Gambar ${index + 1}`}
+                    width={150}
+                    height={150}
+                    className="object-cover rounded-lg shadow-md"
+                  />
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="sm"
+                    className="absolute top-1 right-1 h-6 w-6 rounded-full p-0"
+                    onClick={() => {
+                      form.setValue("imageUrls", imageUrls.filter(item => item !== url));
+                    }}
+                    disabled={loading}
+                  >
+                    X
+                  </Button>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
         <Button onClick={() => console.log('click')} disabled={loading} type="submit" className="m-3 crusor-pointer">

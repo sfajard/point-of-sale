@@ -7,6 +7,7 @@ import { capitalizeEachWord } from '@/lib/capitalized-word';
 import Link from 'next/link';
 import { DeleteAlert } from '../delete-alert';
 import Image from 'next/image';
+import { formatIDR } from '@/lib/utils';
 
 // Assuming Category type from Prisma Client is available
 // and includes 'name' and 'id'
@@ -109,7 +110,7 @@ const ProductTable = ({ selectedCategoryId }: ProductTableProps) => {
               className="grid grid-cols-6 gap-4 py-3 px-4 items-center bg-secondary rounded-lg my-2"
             >
               <p className="col-span-1">{capitalizeEachWord(product.name)}</p>
-              <p className="col-span-1">Rp{product.price.toFixed(2)}</p>
+              <p className="col-span-1">Rp {formatIDR(product.price)}</p>
               <p className="col-span-1">{product.stock}</p>
               <p className="col-span-1">
                 {product.category ? capitalizeEachWord(product.category.name) : "Tidak ada kategori"}

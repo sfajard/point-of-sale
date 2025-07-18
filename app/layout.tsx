@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import Navbar from "@/components/navbar";
+import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -43,6 +44,7 @@ export default function RootLayout({
         >
           <Navbar userEmail={currentUser.email} userName={currentUser.name} userAvatarUrl={currentUser.avatar} />
           {children}
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>

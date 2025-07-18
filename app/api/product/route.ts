@@ -28,9 +28,9 @@ export const GET = async (): Promise<NextResponse> => {
 export const POST = async (request: Request): Promise<NextResponse> => {
     try {
         const body = await request.json();
-        const { name, price, stock, categoryId, imageUrls } = body;
+        const { name, price, stock, categoryId, imageUrls, isFeatured } = body;
 
-        if (!name || !price || !stock || !categoryId || !imageUrls || !Array.isArray(imageUrls) || imageUrls.length === 0) {
+        if (!isFeatured || !name || !price || !stock || !categoryId || !imageUrls || !Array.isArray(imageUrls) || imageUrls.length === 0) {
             return NextResponse.json({ error: "Invalid input data" }, { status: 400 });
         }
         const sku = generateSku(name, categoryId);
@@ -41,7 +41,8 @@ export const POST = async (request: Request): Promise<NextResponse> => {
                 stock,
                 categoryId,
                 imageUrls,
-                sku
+                sku,
+                isFeatured
             }
         });
 

@@ -13,8 +13,8 @@ interface InitialProductValues {
     name: string
     price: number
     stock: number
-    sku: string
     categoryId: string
+    isFeatured: boolean
 }
 
 const page = () => {
@@ -53,7 +53,7 @@ const page = () => {
         name: product.name,
         price: product.price,
         stock: product.stock,
-        sku: product.sku,
+        isFeatured: product.isFeatured,
         categoryId: product.categoryId
     }
 
