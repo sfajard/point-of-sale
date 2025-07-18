@@ -30,17 +30,29 @@ model Product {
   category Category @relation(fields: [categoryId], references: [id]) 
   stock Int @default(0)
   transactionItems TransactionItem[]
-  imageUrls String[]
+  imageUrls Image[]
   cart Cart[]
+  isFeatured Boolean
 }
 
 model Category {
-  id String @id @default(uuid())
-  name String
-  isFeatured Boolean @default(false)
-  imageUrls String[]
-  products Product[]
+  id         String   @id @default(uuid())
+  name       String
+  isFeatured Boolean  @default(false)
+  imageUrls  Image[]  @relation("CategoryImages")
+  products   Product[]
 }
+
+model Image {
+  id          String   @id @default(uuid())
+  url         String
+  productId   String?
+  product     Product? @relation(fields: [productId], references: [id])
+  
+  categoryId  String?
+  category    Category? @relation("CategoryImages", fields: [categoryId], references: [id])
+}
+
 
 model Transaction {
   id String @id @default(uuid())

@@ -5,7 +5,6 @@ export const addProductSchema = z.object({
         .max(50, { message: 'Product name must be less than 20 characters' }),
     price: z.number().min(1),
     stock: z.number().min(1),
-    sku: z.string().min(1),
     categoryId: z.string().min(1),
     image: z.instanceof(File).refine(file => file.size > 0, {
         message: 'Image is required',
@@ -18,6 +17,7 @@ export const addProductSchema = z.object({
         }).optional(),
 
     imageUrls: z.array(z.string().url("URL gambar tidak valid.")).optional(),
+    isFeatured: z.boolean()
 })
 
 export const addCategorySchema = z.object({
