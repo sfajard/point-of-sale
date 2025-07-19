@@ -22,7 +22,7 @@ export const GET = async (req: Request, { params }: Params): Promise<NextRespons
         const { id } = await params;
         const product = await prisma.product.findUnique({
             where: { id },
-            include: { category: true }
+            include: { category: true, imageUrls: true }
         });
         if (!product) {
             return NextResponse.json({ error: "product not found" }, { status: 404 })
@@ -53,14 +53,21 @@ export const PUT = async (req: Request, { params }: Params): Promise<NextRespons
 
         const sku = generateSku(name, categoryId)
 
-        const response = await prisma.product.update({
+        const updatedProduct = await prisma.product.update({
             where: { id },
             data: {
-                name, sku, price, stock, imageUrls,
+                name, sku, price, stock,
                 categoryId, isFeatured
             }
         })
-        return NextResponse.json(response, { status: 200 })
+
+        await prisma.image.createMany({
+            data: imageUrls.map((url: string) => ({
+                url,
+                productId: updatedProduct.id
+            }))
+        })
+        return NextResponse.json(updatedProduct, { status: 200 })
     } catch (error) {
         console.log(error)
         return NextResponse.json({ error: "internal server error" }, { status: 500 })
@@ -70,6 +77,12 @@ export const PUT = async (req: Request, { params }: Params): Promise<NextRespons
 export const DELETE = async (req: Request, { params }: Params): Promise<NextResponse> => {
     try {
         const { id } = await params;
+
+        await prisma.image.deleteMany({
+            where: {
+                productId: id
+            }
+        })
 
         const product = await prisma.product.delete({
             where: { id },

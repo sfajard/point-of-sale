@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { useState } from "react"
-import { addCategory } from "@/lib/action"
+import { addCategory, deleteOrphanImages } from "@/lib/action"
 import { uploadImage } from "@/supabase/storage/client"
 import Image from "next/image"
 
@@ -48,8 +48,6 @@ const CategoryFormPage = () => {
     const handleSubmit = async (values: z.infer<typeof addCategorySchema>) => {
         setLoading(true);
         try {
-            // 'values' sekarang akan berisi 'name', 'imageUrls' (array URL), dan 'isFeatured'
-            // Pastikan addCategory (server action Anda) siap menerima 'imageUrls' sebagai array of string
             await addCategory(values);
             form.reset(); // Reset form setelah sukses
         } catch (error) {
@@ -82,11 +80,10 @@ const CategoryFormPage = () => {
                                 )}
                             />
 
-                            {/* Input untuk Gambar Kategori (Multiple) */}
                             <FormField
                                 disabled={loading}
                                 control={form.control}
-                                name="imageUrls" // Nama field ini sesuai dengan skema Zod
+                                name="imageUrls"
                                 render={({ field }) => (
                                     <FormItem className="mb-4">
                                         <FormLabel>Gambar Kategori</FormLabel>
@@ -94,24 +91,22 @@ const CategoryFormPage = () => {
                                             <Input
                                                 type="file"
                                                 accept="image/*"
-                                                multiple // <-- Tambahkan atribut multiple di sini
+                                                multiple
                                                 onChange={async (e) => {
-                                                    const files = Array.from(e.target.files || []); // Dapatkan semua file yang dipilih
+                                                    const files = Array.from(e.target.files || [])
                                                     if (files.length > 0) {
-                                                        setLoading(true);
-                                                        const uploadedUrls: string[] = [];
+                                                        setLoading(true)
+                                                        const uploadedUrls: string[] = []
 
-                                                        // Iterasi dan unggah setiap file
                                                         for (const file of files) {
                                                             const { imageUrl, error } = await uploadImage({
                                                                 file,
-                                                                bucket: "dank-pics",
-                                                            });
+                                                                bucket: "dank-pics"
+                                                            })
 
                                                             if (error) {
                                                                 console.error("Error mengunggah gambar:", error);
-                                                                // Lanjutkan atau hentikan sesuai kebutuhan Anda
-                                                                continue; // Lanjutkan ke file berikutnya jika ada error pada satu file
+                                                                continue
                                                             }
                                                             if (imageUrl) {
                                                                 uploadedUrls.push(imageUrl);
@@ -119,15 +114,12 @@ const CategoryFormPage = () => {
                                                         }
 
                                                         setLoading(false);
-
-                                                        // Perbarui state form React Hook Form dengan URL gambar baru
-                                                        // Gunakan callback untuk memastikan Anda bekerja dengan state terbaru
                                                         field.onChange([...(field.value || []), ...uploadedUrls]);
-                                                        // Penting: Kosongkan input file agar bisa memilih file yang sama lagi
                                                         e.target.value = '';
+
+                                                        await deleteOrphanImages()
                                                     }
                                                 }}
-                                            // value={undefined} // Tidak diperlukan lagi karena kita mengelola nilai input file secara manual
                                             />
                                         </FormControl>
                                         <FormMessage />
@@ -135,7 +127,6 @@ const CategoryFormPage = () => {
                                 )}
                             />
 
-                            {/* Checkbox untuk Featured Category */}
                             <FormField
                                 disabled={loading}
                                 control={form.control}
@@ -158,25 +149,22 @@ const CategoryFormPage = () => {
                                 )}
                             />
 
-                            {/* Area untuk pratinjau gambar yang diunggah */}
-                            <div className="flex flex-wrap items-center gap-2 mb-4"> {/* Menggunakan flex-wrap dan gap */}
+                            <div className="flex flex-wrap items-center gap-2 mb-4">
                                 {currentImageUrls && currentImageUrls.map((url, index) => (
-                                    <div key={url} className="relative"> {/* Tambahkan key untuk setiap item */}
+                                    <div key={url} className="relative">
                                         <Image
                                             src={url}
                                             alt={`Pratinjau Gambar ${index + 1}`}
-                                            width={150} // Ukuran lebih kecil untuk banyak gambar
+                                            width={150}
                                             height={150}
                                             className="object-cover rounded-lg shadow-md"
                                         />
-                                        {/* Anda bisa menambahkan tombol hapus di sini */}
                                         <Button
                                             type="button"
                                             variant="destructive"
                                             size="sm"
                                             className="absolute top-1 right-1 h-6 w-6 rounded-full p-0"
                                             onClick={() => {
-                                                // Hapus gambar dari array saat tombol hapus diklik
                                                 form.setValue("imageUrls", currentImageUrls.filter(item => item !== url));
                                             }}
                                             disabled={loading}

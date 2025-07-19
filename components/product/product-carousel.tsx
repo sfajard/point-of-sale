@@ -11,7 +11,7 @@ import {
 import Image from "next/image"
 
 interface ProductCarouselProps {
-  imageUrls: string[]
+  imageUrls: { url: string }[];
 }
 
 export const ProductCarousel = ({ imageUrls }: ProductCarouselProps) => {

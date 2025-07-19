@@ -11,7 +11,8 @@ const page = () => {
     sku: '',
     stock: 0,
     categoryId: '',
-    image: undefined
+    image: undefined,
+    isFeatured: false
   }
   return (
     <div>

@@ -20,13 +20,20 @@ export const POST = async (req: Request): Promise<NextResponse> => {
             return NextResponse.json({ error: "all fields required" }, { status: 400 })
         }
 
-        const response = await prisma.category.create({
+        const newCategory = await prisma.category.create({
             data: {
-                name, isFeatured, imageUrls
+                name, isFeatured
             }
         })
+
+        await prisma.image.createMany({
+            data: imageUrls.map((url: string) => ({
+                url,
+                categoryId: newCategory.id
+            }))
+        })
         
-        return NextResponse.json(response, { status: 201 })
+        return NextResponse.json(newCategory, { status: 201 })
     } catch (error) {
         console.log(error)
         return NextResponse.json({ error: "innternal server error" }, { status: 500 })

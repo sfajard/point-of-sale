@@ -16,7 +16,7 @@ const generateSku = (productName: string, categoryId: string): string => {
 export const GET = async (): Promise<NextResponse> => {
     try {
         const response = await prisma.product.findMany({
-            include: { category: true }
+            include: { category: true, imageUrls: true }
         })
         return NextResponse.json(response, { status: 200 })
     } catch (error) {
@@ -33,6 +33,7 @@ export const POST = async (request: Request): Promise<NextResponse> => {
         if (!isFeatured || !name || !price || !stock || !categoryId || !imageUrls || !Array.isArray(imageUrls) || imageUrls.length === 0) {
             return NextResponse.json({ error: "Invalid input data" }, { status: 400 });
         }
+
         const sku = generateSku(name, categoryId);
         const newProduct = await prisma.product.create({
             data: {
@@ -40,11 +41,17 @@ export const POST = async (request: Request): Promise<NextResponse> => {
                 price,
                 stock,
                 categoryId,
-                imageUrls,
                 sku,
                 isFeatured
             }
-        });
+        })
+
+        await prisma.image.createMany({
+            data: imageUrls.map((url: string) => ({
+                url,
+                productId: newProduct.id
+            }))
+        })
 
         return NextResponse.json(newProduct, { status: 201 });
     } catch (error) {
