@@ -10,7 +10,7 @@ import { z } from "zod"
 import { addProductSchema } from "@/lib/schema"
 import { capitalizeEachWord } from "@/lib/capitalized-word"
 import { uploadImage } from "@/supabase/storage/client"
-import { addProduct, updateProduct } from "@/lib/action"
+import { addImage, addProduct, deleteOrphanImages, updateProduct } from "@/lib/action"
 import { Category } from "@prisma/client"
 
 import { Button } from "@/components/ui/button"
@@ -62,7 +62,6 @@ export const ProductForm = ({
   const [imageUrls, setImageUrls] = useState<string[]>(
     initialProductValue?.imageUrls || []
   )
-  const [toastMessage, setToastMessage] = useState<string>('')
 
   const form = useForm<z.infer<typeof addProductSchema>>({
     resolver: zodResolver(addProductSchema),
@@ -121,6 +120,7 @@ export const ProductForm = ({
       console.error("Gagal menyimpan produk:", error)
       toast.error("Gagal menyimpan produk")
     } finally {
+      deleteOrphanImages()
       setLoading(false)
     }
   }
@@ -267,7 +267,10 @@ export const ProductForm = ({
                             continue
                           }
 
-                          if (imageUrl) uploadedUrls.push(imageUrl)
+                          if (imageUrl) {
+                            uploadedUrls.push(imageUrl)
+                          }
+                          
                         }
 
                         setLoading(false)

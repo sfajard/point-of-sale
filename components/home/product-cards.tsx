@@ -5,8 +5,17 @@ import Link from "next/link";
 import { Product } from "@prisma/client";
 import { formatIDR } from "@/lib/utils";
 
+interface ProductWithImages {
+  id: string;
+  name: string;
+  price: number;
+  imageUrls: { url: string }[];
+  rating?: number;
+  sold?: number;
+}
+
 interface ProductCardsProps {
-    products: Product[];
+    products: ProductWithImages[];
 }
 
 const ProductCards = ({ products }: ProductCardsProps) => {
@@ -15,7 +24,7 @@ const ProductCards = ({ products }: ProductCardsProps) => {
             {products.map((product) => (
                 <Card key={product.id} className="">
                     <Image
-                        src={product.imageUrls[0]}
+                        src={product.imageUrls[0]?.url || "/placeholder.png"} // fallback
                         alt={product.name}
                         width={200}
                         height={200}

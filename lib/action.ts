@@ -102,3 +102,26 @@ export const addCategory = async (values: z.infer<typeof addCategorySchema>) => 
         console.error('Error adding category:', error)
     }
 }
+
+export const deleteOrphanImages = async () => {
+    try {
+        await axios.delete('http://localhost:3000/clean-orphan-images')
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+export const addImage = async (): Promise<{ id: string } | null> => {
+  const res = await fetch("/api/image/create", { method: "POST" })
+  if (!res.ok) return null
+  return await res.json()
+}
+
+// Update URL berdasarkan ID
+export const updateImageUrl = async (id: string, url: string) => {
+  await fetch(`/api/image/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ url }),
+  })
+}

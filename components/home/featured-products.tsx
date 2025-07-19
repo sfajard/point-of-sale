@@ -5,8 +5,17 @@ import ProductCards from './product-cards'
 import { getAllProduct } from '@/lib/action'
 import { Product } from '@prisma/client';
 
+interface ProductWithImages {
+  id: string;
+  name: string;
+  price: number;
+  imageUrls: { url: string }[];
+  rating?: number;
+  sold?: number;
+}
+
 const FeaturedProducts = () => {
-  const [products, setProducts] = React.useState<Product[]>([]);
+  const [products, setProducts] = React.useState<ProductWithImages[]>([]);
   React.useEffect(() => {
     const fetchProducts = async () => {
       const fetchedProducts = await getAllProduct();
