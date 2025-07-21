@@ -2,25 +2,37 @@
 
 import { ProductCarousel } from '@/components/product/product-carousel'
 import { Button } from '@/components/ui/button'
-import { getProductById } from '@/lib/action'
+import { getProductById } from '@/lib/actions/product'
 import { formatIDR } from '@/lib/utils'
-import { Product } from '@prisma/client'
-import { Check } from 'lucide-react'
 import { useParams } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
+
+interface ProductWithImages {
+    id: string;
+    name: string;
+    price: number;
+    stock: number;
+    categoryId: string;
+    imageUrls: { url: string }[]
+}
+
 
 const Page = () => {
     const params = useParams()
     const productId = params.productId as string
 
-    const [product, setProduct] = useState<Product | null>(null)
+    const [product, setProduct] = useState<ProductWithImages | null>(null)
     const [loading, setLoading] = useState<boolean>(false)
 
     const fetchProduct = async () => {
         setLoading(true)
         try {
             const response = await getProductById(productId)
-            setProduct(response)
+            if (response) {
+                setProduct(response)
+            } else {
+                setProduct(null)
+            }
         } catch (error) {
             console.error("Failed to fetch product:", error)
         } finally {
@@ -31,7 +43,7 @@ const Page = () => {
     const addToCart = (selectedProductId: string) => {
         setLoading(true)
         try {
-            
+
         } catch (error) {
             console.log(error)
         } finally {

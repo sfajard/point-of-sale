@@ -2,8 +2,7 @@
 
 import React from 'react'
 import ProductCards from './product-cards'
-import { getAllProduct } from '@/lib/action'
-import { Product } from '@prisma/client';
+import { getAllProduct } from '@/lib/actions/product'
 
 interface ProductWithImages {
   id: string;
@@ -18,11 +17,11 @@ const FeaturedProducts = () => {
   const [products, setProducts] = React.useState<ProductWithImages[]>([]);
   React.useEffect(() => {
     const fetchProducts = async () => {
-      const fetchedProducts = await getAllProduct();
-      setProducts(fetchedProducts);
-    };
-    fetchProducts();
-  }, []);
+      const fetchedProducts = await getAllProduct()
+      setProducts(fetchedProducts ?? [])
+    }
+    fetchProducts()
+  }, [])
   return (
     <div className='p-8 flex flex-col items-center'>
         <h1 className='font-bold text-3xl'>Featured Products</h1>

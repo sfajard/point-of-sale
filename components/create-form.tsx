@@ -10,7 +10,7 @@ import { z } from "zod"
 import { addProductSchema } from "@/lib/schema"
 import { capitalizeEachWord } from "@/lib/capitalized-word"
 import { uploadImage } from "@/supabase/storage/client"
-import { addImage, addProduct, deleteOrphanImages, updateProduct } from "@/lib/action"
+import { createProduct, updateProduct } from "@/lib/actions/product"
 import { Category } from "@prisma/client"
 
 import { Button } from "@/components/ui/button"
@@ -30,7 +30,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { AddCategoryDialog } from "./product/add-category"
 import { toast } from "sonner"
 
 interface ProductFormProps {
@@ -62,6 +61,7 @@ export const ProductForm = ({
   const [imageUrls, setImageUrls] = useState<string[]>(
     initialProductValue?.imageUrls || []
   )
+  const [imageIds, setImageIds] = useState<string[]>([])
 
   const form = useForm<z.infer<typeof addProductSchema>>({
     resolver: zodResolver(addProductSchema),
@@ -109,7 +109,7 @@ export const ProductForm = ({
         await updateProduct(values, productId)
         toast.success("Produk berhasil diperbarui")
       } else {
-        await addProduct(values)
+        await createProduct(values, imageIds)
         toast.success("Produk berhasil ditambahkan")
       }
 
@@ -120,7 +120,6 @@ export const ProductForm = ({
       console.error("Gagal menyimpan produk:", error)
       toast.error("Gagal menyimpan produk")
     } finally {
-      deleteOrphanImages()
       setLoading(false)
     }
   }
@@ -257,7 +256,7 @@ export const ProductForm = ({
                         const uploadedUrls: string[] = []
 
                         for (const file of files) {
-                          const { imageUrl, error } = await uploadImage({
+                          const { imageUrl, error, imageId } = await uploadImage({
                             file,
                             bucket: "dank-pics",
                           })
@@ -269,6 +268,10 @@ export const ProductForm = ({
 
                           if (imageUrl) {
                             uploadedUrls.push(imageUrl)
+                          }
+
+                          if (imageId) {
+                            setImageIds([...imageIds, imageId.id])
                           }
                           
                         }

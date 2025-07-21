@@ -35,5 +35,5 @@ export const addCategorySchema = z.object({
             message: 'Image must be a JPEG, PNG, or GIF',
         }).optional(),
     isFeatured: z.boolean().optional(),
-    imageUrls: z.array(z.string().url("URL gambar tidak valid.")).optional(),
+    imageUrls: z.array(z.string().url("URL gambar tidak valid.")),
 })
