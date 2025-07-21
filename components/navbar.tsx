@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
 import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger } from './ui/navigation-menu'
-import { ChevronDown, HeartIcon, ShoppingBag, ShoppingCart } from 'lucide-react'
+import { ChevronDown, Ghost, HeartIcon, ShoppingBag, ShoppingCart } from 'lucide-react'
 import { ThemeButton } from './theme-button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from './ui/dropdown-menu'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
@@ -11,15 +11,11 @@ import { Button } from './ui/button'
 import { Category } from '@prisma/client'
 import { getAllCategoties } from '@/lib/actions/category'
 import { capitalizeEachWord } from '@/lib/capitalized-word'
+import { signOut, useSession } from 'next-auth/react'
 
-interface NavbarProps {
-    userEmail: string;
-    userName?: string;
-    userAvatarUrl?: string;
-}
-
-const Navbar = ({ userEmail, userName = "User", userAvatarUrl }: NavbarProps) => {
+const Navbar = () => {
     const [categories, setCategories] = React.useState<Category[]>([])
+    const { data: session } = useSession()
 
     const fetchCategory = async () => {
         try {
@@ -28,6 +24,10 @@ const Navbar = ({ userEmail, userName = "User", userAvatarUrl }: NavbarProps) =>
         } catch (error) {
             console.log(error)
         }
+    }
+
+    const handleSignOut = () => {
+        signOut()
     }
 
     useEffect(() => {
@@ -125,16 +125,13 @@ const Navbar = ({ userEmail, userName = "User", userAvatarUrl }: NavbarProps) =>
                                 </ul>
                             </NavigationMenuContent>
                         </NavigationMenuItem>
-                        <NavigationMenuItem>
-                            <NavigationMenuLink>
-                                Buy
-                            </NavigationMenuLink>
-                        </NavigationMenuItem>
-                        <NavigationMenuItem>
-                            <NavigationMenuLink href='/dashboard'>
-                                Dashboard
-                            </NavigationMenuLink>
-                        </NavigationMenuItem>
+                        {session && session.user?.role === 'admin' ? (
+                            <NavigationMenuItem>
+                                <NavigationMenuLink href='/dashboard'>
+                                    Dashboard
+                                </NavigationMenuLink>
+                            </NavigationMenuItem>
+                        ) : ''}
                     </NavigationMenuList>
                 </NavigationMenu>
                 <div className="flex gap-5 align-center">
@@ -145,40 +142,50 @@ const Navbar = ({ userEmail, userName = "User", userAvatarUrl }: NavbarProps) =>
                         <HeartIcon />
                     </Button>
                     <ThemeButton />
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="relative h-9 w-9 rounded-full flex items-center justify-center p-0">
-                                <Avatar className="h-8 w-8">
-                                    <AvatarImage src={userAvatarUrl} alt={userName} />
-                                    <AvatarFallback>
-                                        {userName ? userName.charAt(0).toUpperCase() : "DU"}
-                                    </AvatarFallback>
-                                </Avatar>
-                                <ChevronDown className="ml-1 h-4 w-4 text-muted-foreground" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent className="w-56" align="end" forceMount>
-                            <DropdownMenuLabel className="font-normal">
-                                <div className="flex flex-col space-y-1">
-                                    <p className="text-sm font-medium leading-none">{userName}</p>
-                                    <p className="text-xs leading-none text-muted-foreground">
-                                        {userEmail}
-                                    </p>
-                                </div>
-                            </DropdownMenuLabel>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem>
-                                Pengaturan Profil
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>
-                                Bantuan
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem>
-                                Log out
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+                    {session ? (
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" className="relative h-9 w-9 rounded-full flex items-center justify-center p-0">
+                                    <Avatar className="h-8 w-8">
+                                        {session && (
+                                            <Avatar>
+                                                <AvatarImage src={session.user.image ?? undefined} alt={session.user.name ?? "User"} />
+                                                <AvatarFallback>
+                                                    {session.user.name?.charAt(0).toUpperCase() ?? "D"}
+                                                </AvatarFallback>
+                                            </Avatar>
+                                        )}
+                                    </Avatar>
+                                    <ChevronDown className="ml-1 h-4 w-4 text-muted-foreground" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent className="w-56" align="end" forceMount>
+                                <DropdownMenuLabel className="font-normal">
+                                    <div className="flex flex-col space-y-1">
+                                        <p className="text-sm font-medium leading-none">{session.user.name}</p>
+                                        <p className="text-xs leading-none text-muted-foreground">
+                                            {session.user.email}
+                                        </p>
+                                    </div>
+                                </DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem>
+                                    Pengaturan Profil
+                                </DropdownMenuItem>
+                                <DropdownMenuItem>
+                                    Bantuan
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem>
+                                    <Button size={'sm'} variant={'ghost'} onClick={handleSignOut}>Sign Out</Button>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    ) : (
+                        <Button>
+                            <Link href='/signin'>Sign In</Link>
+                        </Button>
+                    )}
                 </div>
             </div>
         </nav>

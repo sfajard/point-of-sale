@@ -15,68 +15,99 @@ datasource db {
 }
 
 model Product {
-  id String @id @default(uuid())
-  name String
-  sku String @unique
-  price Int
-  discount Float @default(0)
-  sold Int @default(0)
-  rating Float @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  description String?
-  tags String[]
-  categoryId String
-  category Category @relation(fields: [categoryId], references: [id]) 
-  stock Int @default(0)
+  id               String            @id @default(uuid())
+  name             String
+  sku              String            @unique
+  price            Int
+  discount         Float             @default(0)
+  sold             Int               @default(0)
+  rating           Float             @default(0)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  description      String?
+  tags             String[]
+  categoryId       String
+  category         Category          @relation(fields: [categoryId], references: [id])
+  stock            Int               @default(0)
   transactionItems TransactionItem[]
-  imageUrls Image[]
-  cart Cart[]
-  isFeatured Boolean
+  imageUrls        Image[]
+  cart             Cart[]
+  isFeatured       Boolean
 }
 
 model Category {
-  id         String   @id @default(uuid())
+  id         String    @id @default(uuid())
   name       String
-  isFeatured Boolean  @default(false)
-  imageUrls  Image[]  @relation("CategoryImages")
+  isFeatured Boolean   @default(false)
+  imageUrls  Image[]   @relation("CategoryImages")
   products   Product[]
 }
 
 model Image {
-  id          String   @id @default(uuid())
-  url         String
-  productId   String?
-  product     Product? @relation(fields: [productId], references: [id])
-  
-  categoryId  String?
-  category    Category? @relation("CategoryImages", fields: [categoryId], references: [id])
-  createdAt DateTime @default(now())
+  id        String   @id @default(uuid())
+  url       String
+  productId String?
+  product   Product? @relation(fields: [productId], references: [id])
+
+  categoryId String?
+  category   Category? @relation("CategoryImages", fields: [categoryId], references: [id])
+  createdAt  DateTime  @default(now())
 }
 
-
 model Transaction {
-  id String @id @default(uuid())
+  id               String            @id @default(uuid())
   transactionItems TransactionItem[]
-  totalAmount Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  totalAmount      Int
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
 }
 
 model Cart {
-  id String @id @default(uuid())
+  id       String    @id @default(uuid())
   products Product[]
 }
 
 model TransactionItem {
-  id String @id @default(uuid())
-  quantity Int
+  id            String      @id @default(uuid())
+  quantity      Int
   transactionId String
-  transaction Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
-  productId String
-  product Product @relation(fields: [productId], references: [id])
+  transaction   Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  productId     String
+  product       Product     @relation(fields: [productId], references: [id])
 
   @@index([transactionId])
   @@index([productId])
 }
 
+model Account {
+  id                String  @id @default(cuid())
+  userId            String  @map("user_id")
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime? @map("email_verified")
+  image         String?
+  role          String    @default("user")
+  phone         String?
+  accounts      Account[]
+
+  @@map("users")
+}

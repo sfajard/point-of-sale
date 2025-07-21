@@ -9,9 +9,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import axios from "axios"
 import { Category } from "@prisma/client"
 import { capitalizeEachWord } from "@/lib/capitalized-word"
+import { getAllCategoties } from "@/lib/actions/category"
 
 interface CategorySelectProps {
   categoryId?: string
@@ -28,8 +28,10 @@ export const CategorySelect = ({
   );
 
   const fetchCategories = async () => {
-    const response = await axios.get("http://localhost:3000/api/category")
-    setCategories(response.data)
+    const response = await getAllCategoties()
+    if (response) {
+      setCategories(response)
+    }
   };
 
   React.useEffect(() => {

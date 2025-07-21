@@ -4,6 +4,8 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import Navbar from "@/components/navbar";
 import { Toaster } from "@/components/ui/sonner";
+import { SessionProvider } from "next-auth/react"
+import { auth } from "@/auth";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -11,10 +13,10 @@ const geistSans = Geist({
 });
 
 const currentUser = {
-        email: "user@example.com",
-        name: "John Doe",
-        avatar: "https://github.com/shadcn.png",
-    };
+  email: "user@example.com",
+  name: "John Doe",
+  avatar: "https://github.com/shadcn.png",
+};
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -26,11 +28,13 @@ export const metadata: Metadata = {
   description: "A simple e-commerce application built with Next.js",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
+  const session = await auth()
   return (
     <html lang="en" suppressHydrationWarning>
       <body
@@ -42,9 +46,11 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Navbar userEmail={currentUser.email} userName={currentUser.name} userAvatarUrl={currentUser.avatar} />
-          {children}
-          <Toaster />
+          <SessionProvider session={session}>
+            <Navbar userEmail={currentUser.email} userName={currentUser.name} userAvatarUrl={currentUser.avatar} />
+            {children}
+            <Toaster />
+          </SessionProvider>
         </ThemeProvider>
       </body>
     </html>

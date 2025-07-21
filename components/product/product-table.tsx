@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { DeleteAlert } from '../delete-alert';
 import Image from 'next/image';
 import { formatIDR } from '@/lib/utils';
+import { getAllProduct } from '@/lib/actions/product';
 
 // Assuming Category type from Prisma Client is available
 // and includes 'name' and 'id'
@@ -36,14 +37,14 @@ const ProductTable = ({ selectedCategoryId }: ProductTableProps) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api/product";
-
   const fetchProducts = async () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.get<Product[]>(API_URL);
-      setProducts(response.data);
+      const response = await getAllProduct()
+      if (response) {
+        setProducts(response)
+      }
     } catch (err) {
       console.error("Failed to fetch products:", err);
       setError("Gagal memuat produk. Silakan coba lagi nanti.");
