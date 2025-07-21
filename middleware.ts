@@ -3,6 +3,13 @@ import { auth } from '@/auth'
 
 const protectedRoutes = ['/dashboard', '/checkout']
 
+/**
+ * Middleware that controls access to protected routes based on user authentication and role.
+ *
+ * Redirects unauthenticated users attempting to access protected routes to the sign-in page. Redirects authenticated non-admin users away from admin-only routes, and prevents logged-in users from accessing the sign-in page.
+ *
+ * @returns A redirect response if access is denied; otherwise, allows the request to proceed.
+ */
 export async function middleware(req: NextRequest) {
     const session = await auth()
     const isLoggedIn = !!session?.user

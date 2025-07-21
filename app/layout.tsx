@@ -28,6 +28,14 @@ export const metadata: Metadata = {
   description: "A simple e-commerce application built with Next.js",
 };
 
+/**
+ * Root layout component that sets up global providers, theming, session context, and navigation for the application.
+ *
+ * Wraps all pages with font styles, theme management, authentication session context, navigation bar, and notification UI.
+ *
+ * @param children - The page content to be rendered within the layout
+ * @returns The complete HTML structure for the application's root layout
+ */
 export default async function RootLayout({
   children,
 }: Readonly<{
