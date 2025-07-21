@@ -10,7 +10,7 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
-import { deleteProduct } from "@/lib/action"
+import { deleteProduct } from "@/lib/actions/product"
 import { Trash2 } from "lucide-react"
 
 interface DeleteAlertProps {
