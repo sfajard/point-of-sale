@@ -1,6 +1,7 @@
 import { createSupabaseClient } from "../client";
 import { v4 as uuidv4 } from "uuid";
 import imageCompression from "browser-image-compression";
+import { createImage } from "@/lib/action";
 
 function getStorage() {
   const { storage } = createSupabaseClient();
@@ -39,7 +40,9 @@ export const uploadImage = async ({ file, bucket, folder }: UploadProps) => {
     data?.path
   }`;
 
-  return { imageUrl, error: "" };
+  const imageId = await createImage(imageUrl)
+
+  return { imageId, imageUrl, error: "" };
 };
 
 export const deleteImage = async (imageUrl: string) => {

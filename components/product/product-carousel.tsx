@@ -18,13 +18,13 @@ export const ProductCarousel = ({ imageUrls }: ProductCarouselProps) => {
   return (
     <Carousel className="w-full max-w-md ml-5">
       <CarouselContent>
-        {imageUrls.map((url, index) => (
+        {imageUrls.map((image, index) => (
           <CarouselItem key={index}>
             <div className="p-2">
               <Card className="shadow-md border border-muted bg-white">
                 <CardContent className="flex items-center justify-center p-2 aspect-square overflow-hidden">
                   <Image
-                    src={url}
+                    src={image.url}
                     alt={`Product Image ${index + 1}`}
                     width={400}
                     height={400}

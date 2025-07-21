@@ -9,7 +9,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import { Button } from './ui/button'
 import { Category } from '@prisma/client'
-import { getAllCategoties } from '@/lib/action'
+import { getAllCategoties } from '@/lib/actions/category'
 import { capitalizeEachWord } from '@/lib/capitalized-word'
 
 interface NavbarProps {
@@ -24,7 +24,7 @@ const Navbar = ({ userEmail, userName = "User", userAvatarUrl }: NavbarProps) =>
     const fetchCategory = async () => {
         try {
             const categories = await getAllCategoties()
-            setCategories(categories)
+            setCategories(categories ?? [])
         } catch (error) {
             console.log(error)
         }
