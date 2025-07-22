@@ -1,7 +1,7 @@
 import { NextResponse, NextRequest } from "next/server";
 import { auth } from '@/auth'
 
-const protectedRoutes = ['/dashboard', '/checkout']
+const protectedRoutes = ['/dashboard', '/checkout', '/cart']
 
 export async function middleware(req: NextRequest) {
     const session = await auth()
@@ -10,6 +10,10 @@ export async function middleware(req: NextRequest) {
     const {pathname} = req.nextUrl
 
     if (!isLoggedIn && protectedRoutes.some((route) => pathname.startsWith(route))) {
+        return NextResponse.redirect(new URL('/signin', req.url))
+    }
+
+    if (!isLoggedIn && pathname.startsWith('/cart')) {
         return NextResponse.redirect(new URL('/signin', req.url))
     }
 

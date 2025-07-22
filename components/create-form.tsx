@@ -31,6 +31,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { toast } from "sonner"
+import { getAllCategoties } from "@/lib/actions/category"
 
 interface ProductFormProps {
   initialProductValue?: InitialProductValues
@@ -77,10 +78,8 @@ export const ProductForm = ({
 
   const fetchCategories = async () => {
     try {
-      const response = await axios.get<Category[]>(
-        "http://localhost:3000/api/category"
-      )
-      setCategories(response.data)
+      const response = await getAllCategoties()
+      setCategories(response || [])
     } catch (error) {
       console.error("Error fetching categories:", error)
     } finally {
