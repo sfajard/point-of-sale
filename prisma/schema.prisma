@@ -31,7 +31,7 @@ model Product {
   stock            Int               @default(0)
   transactionItems TransactionItem[]
   imageUrls        Image[]
-  cart             Cart[]
+  cartItems        CartItem[]
   isFeatured       Boolean
 }
 
@@ -63,8 +63,23 @@ model Transaction {
 }
 
 model Cart {
-  id       String    @id @default(uuid())
-  products Product[]
+  id       String      @id @default(uuid())
+  userId   String
+  user     User        @relation(fields: [userId], references: [id])
+  items    CartItem[]  // relasi ke CartItem
+
+  @@index([userId])
+}
+
+model CartItem {
+  id        String   @id @default(uuid())
+  cart      Cart     @relation(fields: [cartId], references: [id])
+  cartId    String
+  product   Product  @relation(fields: [productId], references: [id])
+  productId String
+  quantity  Int      @default(1)
+
+  @@unique([cartId, productId]) // satu produk hanya sekali per cart
 }
 
 model TransactionItem {
@@ -108,6 +123,6 @@ model User {
   role          String    @default("user")
   phone         String?
   accounts      Account[]
-
+  cart          Cart[]
   @@map("users")
 }

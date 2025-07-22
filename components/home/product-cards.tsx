@@ -22,16 +22,16 @@ const ProductCards = ({ products }: ProductCardsProps) => {
     return (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
             {products.map((product) => (
-                <Card key={product.id} className="">
+                <Card key={product.id} className="flex flex-col items-center justify-center">
                     <Image
                         src={product.imageUrls[0]?.url || "/placeholder.png"} // fallback
                         alt={product.name}
                         width={200}
                         height={200}
-                        className="object-cover rounded-lg"
+                        className="object-cover rounded-lg w-full h-full"
                         style={{ width: 200, height: 200 }}
                     />
-                    <CardContent className="flex flex-col">
+                    <CardContent className="flex flex-col text-center">
                         <Link href={`${product.id}`}>
                             <h2 className="text-lg font-bold">{product.name}</h2>
                         </Link>

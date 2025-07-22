@@ -4,8 +4,11 @@ import { ProductCarousel } from '@/components/product/product-carousel'
 import { Button } from '@/components/ui/button'
 import { getProductById } from '@/lib/actions/product'
 import { formatIDR } from '@/lib/utils'
-import { useParams } from 'next/navigation'
+import { redirect, useParams } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
+import { addToCart } from '@/lib/actions/cart'
+import { useSession } from 'next-auth/react'
+import { toast } from 'sonner'
 
 interface ProductWithImages {
     id: string;
@@ -24,6 +27,9 @@ const Page = () => {
     const [product, setProduct] = useState<ProductWithImages | null>(null)
     const [loading, setLoading] = useState<boolean>(false)
 
+    const { data: session } = useSession()
+    const userId = session?.user?.id
+
     const fetchProduct = async () => {
         setLoading(true)
         try {
@@ -35,17 +41,6 @@ const Page = () => {
             }
         } catch (error) {
             console.error("Failed to fetch product:", error)
-        } finally {
-            setLoading(false)
-        }
-    }
-
-    const addToCart = (selectedProductId: string) => {
-        setLoading(true)
-        try {
-
-        } catch (error) {
-            console.log(error)
         } finally {
             setLoading(false)
         }
@@ -72,7 +67,19 @@ const Page = () => {
                 <span className='text-2xl font-bold my-1'>{product.name}</span>
                 <span className='text-xl my-1'>Rp. {formatIDR(product.price)}</span>
                 <p className='text-xl'>Lorem ipsum dolor sit amet consectetur adipisicing elit. Natus, maiores doloribus. In recusandae, culpa rerum nobis voluptates dolore perspiciatis id maxime at iusto doloribus, laborum, minima nihil unde esse sunt similique eius quaerat ipsam. Nulla accusamus iste consectetur quas autem?</p>
-                <Button onClick={() => addToCart(product.id)} className='my-auto max-w-35'>Add to cart</Button>
+                <Button
+                    onClick={() => {
+                        if (userId) {
+                            addToCart(userId, product.id)
+                            toast.success('Product added to cart')
+                        } else {
+                            redirect('/signin')
+                        }
+                    }}
+                    className='my-auto max-w-35'
+                >
+                    Add to cart
+                </Button>
             </div>
         </div>
     )

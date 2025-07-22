@@ -16,7 +16,8 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { useState } from "react"
-import { addCategory, deleteOrphanImages } from "@/lib/action"
+import { createCategory } from "@/lib/actions/category"
+import { deleteOrphanImages } from "@/lib/actions/image"
 import { uploadImage } from "@/supabase/storage/client"
 import Image from "next/image"
 
@@ -48,7 +49,7 @@ const CategoryFormPage = () => {
     const handleSubmit = async (values: z.infer<typeof addCategorySchema>) => {
         setLoading(true);
         try {
-            await addCategory(values);
+            await createCategory(values);
             form.reset(); // Reset form setelah sukses
         } catch (error) {
             console.error("Gagal menambahkan kategori:", error);
