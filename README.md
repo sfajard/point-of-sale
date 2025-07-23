@@ -1,6 +1,6 @@
-# Point of Sale (POS) Web App
+# sfaMart Web App
 
-A modern, responsive Point of Sale (POS) web application built with Next.js, TypeScript, Prisma, Supabase, and shadcn/ui. This project is designed for retail businesses to manage products, categories, transactions, and more, with a beautiful and intuitive interface.
+A modern, responsive boutique web application built with Next.js, TypeScript, Prisma, Supabase, and shadcn/ui. This project is designed for retail businesses to manage products, categories, transactions, and more, with a beautiful and intuitive interface.
 
 ## Features
 
