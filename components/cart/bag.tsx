@@ -18,10 +18,11 @@ interface CartItemsWithProducts extends CartItem {
 interface BagProps {
     cartItems: CartItemsWithProducts[];
     onQuantityChange: (itemId: string, newQuantity: number) => void; // Function to handle quantity changes
-    onRemoveItem: (itemId: string) => void; // Function to handle item removal
+    onRemoveItem: (itemId: string) => void
+    onCheckout: () => void
 }
 
-export const Bag = ({ cartItems, onQuantityChange, onRemoveItem }: BagProps) => {
+export const Bag = ({ cartItems, onQuantityChange, onRemoveItem, onCheckout }: BagProps) => {
     const subtotal = cartItems.reduce((acc, item) => acc + item.quantity * item.product.price, 0);
 
     return (
@@ -102,7 +103,10 @@ export const Bag = ({ cartItems, onQuantityChange, onRemoveItem }: BagProps) => 
             {cartItems.length > 0 && (
                 <CardFooter className="flex justify-between items-center border-t pt-4">
                     <div className="text-lg font-semibold">Subtotal:</div>
-                    <div className="text-xl font-bold flex align-middle items-center"><span className='mx-3'>{formatIDR(subtotal)}</span> <Button>Chckout</Button></div>
+                    <div className="text-xl font-bold flex align-middle items-center"><span className='mx-3'>
+                        {formatIDR(subtotal)}</span>
+                        <Button onClick={() => onCheckout()}>Chckout</Button>
+                    </div>
                 </CardFooter>
             )}
         </Card>

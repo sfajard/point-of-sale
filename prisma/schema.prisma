@@ -60,24 +60,28 @@ model Transaction {
   totalAmount      Int
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
+  user             User?             @relation(fields: [userId], references: [id])
+  userId           String?
+  status           String            @default("pending")
+  orderId          String
 }
 
 model Cart {
-  id       String      @id @default(uuid())
-  userId   String
-  user     User        @relation(fields: [userId], references: [id])
-  items    CartItem[]  // relasi ke CartItem
+  id     String     @id @default(uuid())
+  userId String     @unique
+  user   User       @relation(fields: [userId], references: [id])
+  items  CartItem[] // relasi ke CartItem
 
   @@index([userId])
 }
 
 model CartItem {
-  id        String   @id @default(uuid())
-  cart      Cart     @relation(fields: [cartId], references: [id])
+  id        String  @id @default(uuid())
+  cart      Cart    @relation(fields: [cartId], references: [id])
   cartId    String
-  product   Product  @relation(fields: [productId], references: [id])
+  product   Product @relation(fields: [productId], references: [id])
   productId String
-  quantity  Int      @default(1)
+  quantity  Int     @default(1)
 
   @@unique([cartId, productId]) // satu produk hanya sekali per cart
 }
@@ -85,6 +89,7 @@ model CartItem {
 model TransactionItem {
   id            String      @id @default(uuid())
   quantity      Int
+  price         Int
   transactionId String
   transaction   Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
   productId     String
@@ -115,14 +120,16 @@ model Account {
 }
 
 model User {
-  id            String    @id @default(cuid())
+  id            String        @id @default(cuid())
   name          String?
-  email         String?   @unique
-  emailVerified DateTime? @map("email_verified")
+  email         String?       @unique
+  emailVerified DateTime?     @map("email_verified")
   image         String?
-  role          String    @default("user")
+  role          String        @default("user")
   phone         String?
   accounts      Account[]
-  cart          Cart[]
+  cart          Cart?
+  transactions  Transaction[]
+
   @@map("users")
 }

@@ -1,6 +1,7 @@
-const prisma = new PrismaClient()
-import { NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
+const prisma = new PrismaClient();
+import { NextResponse } from 'next/server';
+import { PrismaClient } from '@prisma/client';
+import { Snap } from 'midtrans-client';
 
 export const GET = async () => {
     try {
@@ -12,40 +13,112 @@ export const GET = async () => {
                     }
                 }
             }
-        })
-        return NextResponse.json(response, { status: 200 })
+        });
+        return NextResponse.json(response, { status: 200 });
     } catch (error) {
-        console.error('Error fetching transactions:', error)
-        return NextResponse.json({ error: 'Failed to fetch transactions' }, { status: 500 })
+        console.error('Error fetching transactions:', error);
+        return NextResponse.json({ error: 'Failed to fetch transactions' }, { status: 500 });
     }
-}
+};
 
 export const POST = async (request: Request) => {
-    try {
-        const body = await request.json()
-        const { totalAmount, transactionItems } = body
+    const body = await request.json()
 
-        if (!totalAmount || !transactionItems || transactionItems.length === 0) {
-            return NextResponse.json({ error: 'Invalid input data' }, { status: 400 })
+    const { userName, email, id: userId } = body
+
+    try {
+        const cart = await prisma.cart.findFirst({
+            where: {
+                userId: userId
+            },
+            include: {
+                items: {
+                    include: {
+                        product: true
+                    }
+                }
+            }
+        });
+
+        if (!cart || cart.items.length === 0) {
+            return NextResponse.json({ error: 'Cart not found or is empty' }, { status: 400 });
         }
 
-        console.log('Creating transaction with data:', body)
+        let grossAmount = 0;
+        const itemDetails = cart.items.map(item => {
+            const itemPrice = item.product.price;
+            const itemQuantity = item.quantity;
+            const subtotal = itemPrice * itemQuantity;
+            grossAmount += subtotal;
+
+            return {
+                id: item.productId,
+                price: itemPrice,
+                quantity: itemQuantity,
+                name: item.product.name
+            };
+        });
+
+        const orderId = `TRX-${Date.now()}-${Math.random().toString(36).substring(2, 9).toUpperCase()}`;
 
         const newTransaction = await prisma.transaction.create({
             data: {
-                totalAmount,
+                userId: userId,
+                totalAmount: grossAmount,
+                orderId: orderId,
+                status: 'PENDING',
                 transactionItems: {
-                    create: transactionItems.map((item: { productId: string; quantity: number }) => ({
+                    create: cart.items.map(item => ({
+                        productId: item.productId,
                         quantity: item.quantity,
-                        product: { connect: { id: item.productId } }
+                        price: item.product.price,
                     }))
                 }
             }
-        })
+        });
 
-        return NextResponse.json(newTransaction, { status: 201 })
+        let snap = new Snap({
+            isProduction: false, 
+            serverKey: process.env.MIDTRANS_SERVER_KEY as string
+        });
+
+        let parameter = {
+            transaction_details: {
+                order_id: newTransaction.orderId, 
+                gross_amount: grossAmount
+            },
+            credit_card: {
+                secure: true
+            },
+            customer_details: {
+                first_name: userName,
+                email: email,
+                customer_id: userId
+            },
+            item_details: itemDetails
+        };
+
+        const midtransTransaction = await snap.createTransaction(parameter);
+
+        await prisma.cartItem.deleteMany({
+            where: {
+                cartId: cart.id
+            }
+        });
+        await prisma.cart.delete({
+            where: {
+                id: cart.id
+            }
+        });
+
+
+        return NextResponse.json({
+            token: midtransTransaction.token,
+            redirectUrl: midtransTransaction.redirect_url
+        }, { status: 200 });
+
     } catch (error) {
-        console.error('Error creating transaction:', error)
-        return NextResponse.json({ error: 'Failed to create transaction' }, { status: 500 })
+        console.error('Error processing transaction:', error); // More specific error message
+        return NextResponse.json({ error: 'Failed to process transaction' }, { status: 500 }); // Return an error response
     }
-}
+};
