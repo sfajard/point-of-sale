@@ -6,6 +6,16 @@ import { getCartByUserId, updateCartItemQuantity, removeCartItem } from '@/lib/a
 import { CartItem, Image } from '@prisma/client';
 import { Bag } from '@/components/cart/bag';
 import { toast } from 'sonner'
+import axios from 'axios';
+import Script from 'next/script';
+
+declare global {
+  interface Window {
+    snap: {
+      pay: (token: string) => void
+    }
+  }
+}
 
 interface CartItemWithProduct extends CartItem {
   product: {
@@ -19,6 +29,7 @@ const CartPage = () => {
   const [cartItems, setCartItems] = useState<CartItemWithProduct[]>([]);
   const { data: session } = useSession();
   const userId = session?.user?.id;
+  const user = session?.user
   const [loading, setLoading] = useState(true);
 
   const fetchCart = useCallback(async () => {
@@ -37,7 +48,7 @@ const CartPage = () => {
       }
     } else {
       setLoading(false);
-      setCartItems([]); 
+      setCartItems([]);
     }
   }, [userId]);
 
@@ -91,6 +102,32 @@ const CartPage = () => {
     }
   };
 
+  const handleCheckout = async () => {
+    if (!user) {
+      toast('Error', {
+        description: 'Please log in to proceed with checkout.'
+      });
+      return
+    }
+    try {
+      const transaction = await axios.post('/api/transaction', {
+        userName: user.name,
+        id: user.id,
+        email: user.email
+      })
+
+      const token = transaction.data.token
+      if (token) {
+        window.snap.pay(token)
+      }
+    } catch (error) {
+      console.log(error);
+      toast('Error', {
+        description: 'Failed to proceed with checkout. Please try again.'
+      });
+    }
+  };
+
   if (loading) {
     return (
       <div className='w-full h-full m-10 flex justify-center items-center'>
@@ -105,7 +142,13 @@ const CartPage = () => {
         cartItems={cartItems}
         onQuantityChange={handleQuantityChange}
         onRemoveItem={handleRemoveItem}
+        onCheckout={handleCheckout}
       />
+
+      <Script
+      src="https://app.sandbox.midtrans.com/snap/snap.js" 
+      strategy='lazyOnload'
+      data-client-key={process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY} />
     </div>
   )
 }
