@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
 import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger } from './ui/navigation-menu'
-import { ChevronDown, Ghost, HeartIcon, ShoppingBag, ShoppingCart } from 'lucide-react'
+import { ChevronDown, Ghost, HeartIcon, Search, ShoppingBag, ShoppingCart } from 'lucide-react'
 import { ThemeButton } from './theme-button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from './ui/dropdown-menu'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
@@ -12,9 +12,12 @@ import { Category } from '@prisma/client'
 import { getAllCategoties } from '@/lib/actions/category'
 import { capitalizeEachWord } from '@/lib/capitalized-word'
 import { signOut, useSession } from 'next-auth/react'
+import { Input } from './ui/input'
+import { redirect } from 'next/navigation'
 
 const Navbar = () => {
     const [categories, setCategories] = React.useState<Category[]>([])
+    const [searchQuery, setSearchQuery] = useState<string>('')
     const { data: session } = useSession()
 
     const fetchCategory = async () => {
@@ -28,6 +31,10 @@ const Navbar = () => {
 
     const handleSignOut = () => {
         signOut()
+    }
+
+    const handleSearch = () => {
+        redirect(`/products?search=${searchQuery}`)
     }
 
     useEffect(() => {
@@ -134,6 +141,16 @@ const Navbar = () => {
                         ) : ''}
                     </NavigationMenuList>
                 </NavigationMenu>
+                <div className="flex w-full max-w-sm items-center gap-2">
+                    <Input type="text" placeholder="Search product..."
+                    onChange={(e) => {setSearchQuery(e.target.value)}}
+                    />
+                    <Button type="submit" variant="ghost"
+                        onClick={handleSearch}
+                    >
+                        <Search />
+                    </Button>
+                </div>
                 <div className="flex gap-5 align-center">
                     <Button variant={'ghost'} size={'icon'} className='cursor-pointer'>
                         <Link href='/cart'><ShoppingBag /></Link>
