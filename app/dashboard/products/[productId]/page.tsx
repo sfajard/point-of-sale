@@ -2,7 +2,8 @@
 
 import { ProductForm } from '@/components/create-form'
 import { Button } from '@/components/ui/button'
-import { Product } from '@prisma/client'
+import { getProductById } from '@/lib/actions/product'
+import { Category, Image, Product } from '@prisma/client'
 import axios from 'axios'
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
@@ -17,8 +18,13 @@ interface InitialProductValues {
     isFeatured: boolean
 }
 
+interface ProductWithChilds extends Product {
+    imageUrls: Image[]
+    category: Category
+}
+
 const page = () => {
-    const [product, setProduct] = useState<Product | null>(null)
+    const [product, setProduct] = useState<ProductWithChilds | null>(null)
     const [loading, setLoading] = useState<boolean>(false)
     const params = useParams()
     const productId = params.productId as string
@@ -27,9 +33,12 @@ const page = () => {
     const fetchProduct = async () => {
         try {
             setLoading(true)
-            const response = await axios.get<Product>(`http://localhost:3000/api/product/${productId}`)
-            console.log(productId)
-            setProduct(response.data)
+            const response = await getProductById(productId)
+            if (response) {
+                setProduct(response)
+            } else {
+                console.error('Product not found')
+            }
             setLoading(false)
         } catch (error) {
             console.log(error)
@@ -65,7 +74,7 @@ const page = () => {
                     <Link className='flex align-middle items-center' href={'/dashboard/products'}><ArrowLeft /> Product List</Link>
                 </Button>
             </div>
-            <ProductForm initialProductValue={initialProductValue} action='update' productId={productId}  />
+            <ProductForm initialProductValue={initialProductValue} action='update' productId={productId} />
         </div>
     )
 }

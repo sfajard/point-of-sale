@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma"
 import * as z from 'zod'
 import { addProductSchema } from "../schema"
+import { deleteOrphanImages } from "./image"
 
 const generateSku = (productName: string, categoryId: string): string => {
     const namePart = productName.substring(0, 3).toUpperCase()
@@ -90,6 +91,14 @@ export const deleteProduct = async (productId: string) => {
             }
         })
 
+        await prisma.image.deleteMany({
+            where: {
+                productId: productId
+            }
+        })
+
+        await deleteOrphanImages()
+
     } catch (error) {
         console.log(error)
     }
@@ -98,11 +107,7 @@ export const deleteProduct = async (productId: string) => {
 export const updateProduct = async (values: z.infer<typeof addProductSchema>, productId: string) => {
     try {
         const { name, price, stock, categoryId, imageUrls, isFeatured } = values
-        const product = await prisma.product.findUnique({
-            where: {
-                id: productId
-            }
-        })
+        const product = await getProductById(productId)
 
         if (!product) return console.error('Product not found')
 
@@ -125,6 +130,8 @@ export const updateProduct = async (values: z.infer<typeof addProductSchema>, pr
                 productId: updatedProduct.id
             }))
         })
+
+        await deleteOrphanImages()
 
     } catch (error) {
         console.error(error)
