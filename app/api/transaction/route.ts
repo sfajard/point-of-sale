@@ -98,7 +98,23 @@ export const POST = async (request: Request) => {
             item_details: itemDetails
         };
 
-        const midtransTransaction = await snap.createTransaction(parameter);
+        const midtransTransaction = await snap.createTransaction(parameter)
+
+        for (const item of cart.items) {
+            await prisma.product.update({
+                where: {
+                    id: item.productId
+                },
+                data: {
+                    sold: {
+                        increment: item.quantity
+                    },
+                    stock: {
+                        decrement: item.quantity
+                    }
+                }
+            })
+        }
 
         await prisma.cartItem.deleteMany({
             where: {
@@ -109,8 +125,7 @@ export const POST = async (request: Request) => {
             where: {
                 id: cart.id
             }
-        });
-
+        })
 
         return NextResponse.json({
             token: midtransTransaction.token,

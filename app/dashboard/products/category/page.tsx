@@ -25,16 +25,18 @@ import React from 'react'
 
 interface InitialCategoryValue {
     name: string;
-    imageUrls?: string[]; // Diubah menjadi array of strings
+    imageUrls?: string[];
     isFeatured?: boolean;
 }
 
 const CategoryFormPage = () => {
     const [loading, setLoading] = useState(false)
+    const [imageUrls, setImageUrls] = useState<string[]>([])
+      const [imageIds, setImageIds] = useState<string[]>([])
 
     const defaultFormValues: InitialCategoryValue = {
         name: '',
-        imageUrls: [], // Nilai awal adalah array kosong
+        imageUrls: [],
         isFeatured: false,
     }
 
@@ -43,17 +45,15 @@ const CategoryFormPage = () => {
         defaultValues: defaultFormValues,
     })
 
-    // Memantau nilai 'imageUrls' dari form untuk tujuan preview
     const currentImageUrls = form.watch("imageUrls");
 
     const handleSubmit = async (values: z.infer<typeof addCategorySchema>) => {
         setLoading(true);
         try {
-            await createCategory(values);
-            form.reset(); // Reset form setelah sukses
+            await createCategory(values, imageIds);
+            form.reset();
         } catch (error) {
             console.error("Gagal menambahkan kategori:", error);
-            // Tambahkan notifikasi toast di sini
         } finally {
             setLoading(false);
         }
@@ -65,7 +65,6 @@ const CategoryFormPage = () => {
                 <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8 p-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10">
                         <div>
-                            {/* Input untuk Nama Kategori */}
                             <FormField
                                 disabled={loading}
                                 control={form.control}
@@ -95,31 +94,38 @@ const CategoryFormPage = () => {
                                                 multiple
                                                 onChange={async (e) => {
                                                     const files = Array.from(e.target.files || [])
-                                                    if (files.length > 0) {
-                                                        setLoading(true)
-                                                        const uploadedUrls: string[] = []
+                                                    if (files.length === 0) return
 
-                                                        for (const file of files) {
-                                                            const { imageUrl, error } = await uploadImage({
-                                                                file,
-                                                                bucket: "dank-pics"
-                                                            })
+                                                    setLoading(true)
+                                                    const uploadedUrls: string[] = []
 
-                                                            if (error) {
-                                                                console.error("Error mengunggah gambar:", error);
-                                                                continue
-                                                            }
-                                                            if (imageUrl) {
-                                                                uploadedUrls.push(imageUrl);
-                                                            }
+                                                    for (const file of files) {
+                                                        const { imageUrl, error, imageId } = await uploadImage({
+                                                            file,
+                                                            bucket: "dank-pics",
+                                                        })
+
+                                                        if (error) {
+                                                            console.error("Upload error:", error)
+                                                            continue
                                                         }
 
-                                                        setLoading(false);
-                                                        field.onChange([...(field.value || []), ...uploadedUrls]);
-                                                        e.target.value = '';
+                                                        if (imageUrl) {
+                                                            uploadedUrls.push(imageUrl)
+                                                        }
 
-                                                        await deleteOrphanImages()
+                                                        if (imageId) {
+                                                            setImageIds([...imageIds, imageId.id])
+                                                        }
+
                                                     }
+
+                                                    setLoading(false)
+
+                                                    const newUrls = [...(field.value || []), ...uploadedUrls]
+                                                    field.onChange(newUrls)
+                                                    setImageUrls(newUrls)
+                                                    e.target.value = ""
                                                 }}
                                             />
                                         </FormControl>

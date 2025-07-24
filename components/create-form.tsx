@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import axios from "axios"
 import Image from "next/image"
 import { z } from "zod"
 
@@ -105,7 +104,7 @@ export const ProductForm = ({
         if (!productId) {
           throw new Error("Product ID is required for update operation.")
         }
-        await updateProduct(values, productId)
+        await updateProduct(values, productId, imageIds)
         toast.success("Produk berhasil diperbarui")
       } else {
         await createProduct(values, imageIds)

@@ -83,7 +83,7 @@ model CartItem {
   productId String
   quantity  Int     @default(1)
 
-  @@unique([cartId, productId]) // satu produk hanya sekali per cart
+  @@unique([cartId, productId])
 }
 
 model TransactionItem {
