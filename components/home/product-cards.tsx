@@ -2,7 +2,6 @@ import Image from "next/image";
 import { Card, CardContent } from "../ui/card";
 import { Button } from "../ui/button";
 import Link from "next/link";
-import { Product } from "@prisma/client";
 import { formatIDR } from "@/lib/utils";
 
 interface ProductWithImages {
@@ -12,13 +11,15 @@ interface ProductWithImages {
   imageUrls: { url: string }[];
   rating?: number;
   sold?: number;
+  isFeatured: boolean
 }
 
 interface ProductCardsProps {
     products: ProductWithImages[];
+    selectedField: string
 }
 
-const ProductCards = ({ products }: ProductCardsProps) => {
+const ProductCards = ({ products, selectedField }: ProductCardsProps) => {
     return (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
             {products.map((product) => (

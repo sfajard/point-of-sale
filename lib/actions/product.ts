@@ -104,7 +104,7 @@ export const deleteProduct = async (productId: string) => {
     }
 }
 
-export const updateProduct = async (values: z.infer<typeof addProductSchema>, productId: string) => {
+export const updateProduct = async (values: z.infer<typeof addProductSchema>, productId: string, imageIds: string[]) => {
     try {
         const { name, price, stock, categoryId, imageUrls, isFeatured } = values
         const product = await getProductById(productId)
@@ -124,16 +124,37 @@ export const updateProduct = async (values: z.infer<typeof addProductSchema>, pr
             }
         })
 
-        await prisma.image.createMany({
-            data: imageUrls.map((url: string) => ({
-                url,
+        await prisma.image.updateMany({
+            where: {
+                id: {
+                    in: imageIds
+                }
+            },
+            data: {
                 productId: updatedProduct.id
-            }))
+            }
         })
 
         await deleteOrphanImages()
 
     } catch (error) {
         console.error(error)
+    }
+}
+
+export const getFeaturedProducts = async () => {
+    try {
+        const featuredProducts = await prisma.product.findMany({
+            where: {
+                isFeatured: true
+            },
+            include: {
+                imageUrls: true
+            }
+        })
+
+        return featuredProducts
+    } catch (error) {
+        console.error('error fetching featured products')
     }
 }

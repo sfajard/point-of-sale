@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma"
 import * as z from 'zod'
 import { addCategorySchema } from "../schema"
+import { deleteOrphanImages } from "./image"
 
 export const getAllCategoties = async () => {
     try {
@@ -13,9 +14,9 @@ export const getAllCategoties = async () => {
     }
 }
 
-export const createCategory = async (values: z.infer<typeof addCategorySchema>) => {
+export const createCategory = async (values: z.infer<typeof addCategorySchema>, imageIds: string[]) => {
     try {
-        const { name, isFeatured, imageUrls } = values
+        const { name, isFeatured } = values
 
         const newCategory = await prisma.category.create(
             {
@@ -25,12 +26,18 @@ export const createCategory = async (values: z.infer<typeof addCategorySchema>) 
             }
         )
 
-        await prisma.image.createMany({
-            data: imageUrls.map((url: string) => ({
-                url,
-                categoryId: newCategory.id
-            }))
+        await prisma.image.updateMany({
+            where: {
+                id: {
+                    in: imageIds
+                }
+            },
+            data: {
+                productId: newCategory.id
+            }
         })
+
+        deleteOrphanImages()
     } catch (error) {
         console.error('Error adding category:', error)
     }
