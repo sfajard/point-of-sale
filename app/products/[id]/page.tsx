@@ -22,7 +22,7 @@ interface ProductWithImages {
 
 const Page = () => {
     const params = useParams()
-    const productId = params.productId as string
+    const productId = params.id as string
 
     const [product, setProduct] = useState<ProductWithImages | null>(null)
     const [loading, setLoading] = useState<boolean>(false)

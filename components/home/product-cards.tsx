@@ -3,16 +3,12 @@ import { Card, CardContent } from "../ui/card";
 import { Button } from "../ui/button";
 import Link from "next/link";
 import { formatIDR } from "@/lib/utils";
+import { Product } from "@prisma/client";
 
-interface ProductWithImages {
-  id: string;
-  name: string;
-  price: number;
-  imageUrls: { url: string }[];
-  rating?: number;
-  sold?: number;
-  isFeatured: boolean
+interface ProductWithImages extends Product {
+    imageUrls: { url: string }[]
 }
+
 
 interface ProductCardsProps {
     products: ProductWithImages[];
@@ -33,7 +29,7 @@ const ProductCards = ({ products, selectedField }: ProductCardsProps) => {
                         style={{ width: 200, height: 200 }}
                     />
                     <CardContent className="flex flex-col text-center">
-                        <Link href={`${product.id}`}>
+                        <Link href={`/products/${product.id}`}>
                             <h2 className="text-lg font-bold">{product.name}</h2>
                         </Link>
                         <p className="text-sm text-gray-500">Price: ${formatIDR(product.price)}</p>

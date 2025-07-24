@@ -142,19 +142,14 @@ export const updateProduct = async (values: z.infer<typeof addProductSchema>, pr
     }
 }
 
-export const getFeaturedProducts = async () => {
-    try {
-        const featuredProducts = await prisma.product.findMany({
-            where: {
-                isFeatured: true
-            },
-            include: {
-                imageUrls: true
-            }
-        })
+export const getSearchedProducts = async (params: string) => {
+    const products = await getAllProduct()
 
-        return featuredProducts
-    } catch (error) {
-        console.error('error fetching featured products')
-    }
+    const productList = products || []
+
+    const filteredProducts = productList.filter(product => {
+        return product.name.toLowerCase().startsWith(params.toLowerCase())
+    });
+
+    return filteredProducts
 }
