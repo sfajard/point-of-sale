@@ -39,11 +39,6 @@ const transactionItems = [
         title: 'History',
         url: '/dashboard/transaction/history',
         icon: ReceiptText
-    },
-    {
-        title: 'Invoice',
-        url: '/dashboard/transaction/history',
-        icon: HandCoins
     }
 ]
 export const AppSidebar = () => {

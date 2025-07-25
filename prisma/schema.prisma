@@ -64,6 +64,12 @@ model Transaction {
   userId           String?
   status           String            @default("pending")
   orderId          String
+
+  invoiceId      String?        @unique 
+  invoiceNumber  String?        @unique
+  paymentLinkUrl String?
+  pdfUrl         String?
+
 }
 
 model Cart {
