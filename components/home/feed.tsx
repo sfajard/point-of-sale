@@ -89,7 +89,7 @@ const Feed = () => {
                     <CardContent className="relative z-10 p-2 flex flex-col space-y-2 h-full">
                     <div className="flex flex-col space-y-2 m-5 mt-6 items-center">
                         <h1 className="text-xl md:text-3xl font-bold mb-2 drop-shadow-lg">
-                            Handbag
+                            Backpack
                         </h1>
                         <p className="text-lg md:text-xl mb-3 font-medium drop-shadow">
                             Min. 20% - 70% Off
