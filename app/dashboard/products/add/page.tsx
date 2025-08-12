@@ -1,6 +1,6 @@
 import { ProductForm } from '@/components/create-form'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, SkipBackIcon } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import React from 'react'
 

@@ -20,7 +20,7 @@ const HeroSection = () => {
                 <div className="flex flex-col space-y-4 w-130 m-10">
                     <span className="text-xl font-medium">Opening Sale</span>
                     <h1 className="text-3xl md:text-5xl font-bold mb-4 drop-shadow-lg">
-                        Men's Fashion Sale - 25% OFF!
+                        Men Fashion Sale - 25% OFF!
                     </h1>
                     <p className="text-lg md:text-xl mb-6 font-medium drop-shadow">
                         Dapatkan penampilan terbaik dengan harga spesial. Promo terbatas hanya di bulan ini!

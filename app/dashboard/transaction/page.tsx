@@ -4,7 +4,7 @@ import CashierCart from '@/components/transaction/cashier-cart'
 import { ProductCards, ProductCardSkeleton } from '@/components/transaction/product-cards'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { getAllProduct } from '@/lib/action'
+import { getAllProduct } from '@/lib/actions/product'
 import { createTransaction } from '@/lib/transaction'
 import { Product } from '@prisma/client'
 import { Plus, SearchIcon } from 'lucide-react'
@@ -16,7 +16,7 @@ interface CartItems {
     quantity: number
 }
 
-const page = () => {
+const Page = () => {
     const [products, setProducts] = useState<Product[]>([])
     const [loading, setLoading] = useState<boolean>(false)
     const [cartItems, setCartItems] = React.useState<CartItems[]>([])
@@ -25,6 +25,9 @@ const page = () => {
         try {
             setLoading(true)
             const response = await getAllProduct()
+            if (!response) {
+                throw new Error('No products found')
+            }
             setProducts(response)
         } catch (error) {
             console.log(error)
@@ -132,4 +135,4 @@ const page = () => {
     )
 }
 
-export default page
+export default Page

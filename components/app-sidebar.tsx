@@ -1,4 +1,4 @@
-import { ChevronDown, HandCoins, Home, List, Plus, ReceiptText, ScanBarcode, ShoppingBasket } from "lucide-react"
+import { ChevronDown, Home, List, Plus, ReceiptText, ShoppingBasket } from "lucide-react"
 import { Sidebar, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "./ui/sidebar"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible"
 import Link from "next/link"

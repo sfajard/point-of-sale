@@ -12,12 +12,6 @@ const geistSans = Geist({
   subsets: ["latin"],
 });
 
-const currentUser = {
-  email: "user@example.com",
-  name: "John Doe",
-  avatar: "https://github.com/shadcn.png",
-};
-
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
@@ -47,7 +41,7 @@ export default async function RootLayout({
           disableTransitionOnChange
         >
           <SessionProvider session={session}>
-            <Navbar userEmail={currentUser.email} userName={currentUser.name} userAvatarUrl={currentUser.avatar} />
+            <Navbar />
             {children}
             <Toaster />
           </SessionProvider>

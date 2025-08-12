@@ -4,10 +4,8 @@ import React, { useEffect, useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Button } from '@/components/ui/button'; // Import Button component for links
-import { ExternalLink } from 'lucide-react'; // Import icon for external link
-
-// Asumsi fungsi ini akan mengambil semua data transaksi termasuk field invoice yang baru
+import { Button } from '@/components/ui/button';
+import { ExternalLink } from 'lucide-react';
 import { getAllTransaction } from '@/lib/transaction';
 import { getAllProduct } from '@/lib/actions/product';
 import HistoryItemDialog from '@/components/transaction/history-item-dropdown';
@@ -15,20 +13,37 @@ import HistoryItemDialog from '@/components/transaction/history-item-dropdown';
 // Perbarui interface TransactionItem untuk mencakup field invoice yang baru
 interface TransactionItem {
   id: string;
-  name?: string; // name mungkin tidak relevan di sini jika ini adalah transaksi keseluruhan
+  name?: string;
   totalAmount: number;
   createdAt: string;
-  status: string; // Tambahkan status transaksi
-  orderId: string; // Order ID internal
-  invoiceId?: string | null; // ID invoice dari Midtrans
-  invoiceNumber?: string | null; // Nomor invoice dari Midtrans
-  paymentLinkUrl?: string | null; // URL payment link dari Midtrans
-  pdfUrl?: string | null; // URL PDF invoice dari Midtrans
+  status: string;
+  orderId: string;
+  invoiceId?: string | null;
+  invoiceNumber?: string | null;
+  paymentLinkUrl?: string | null;
+  pdfUrl?: string | null;
   transactionItems: Array<{
     productId: string;
     quantity: number;
-    // Jika Anda juga ingin menampilkan harga per item atau nama produk di sini,
-    // pastikan itu disertakan dalam query Prisma di `getAllTransaction`
+  }>;
+}
+
+// Define a type for the raw response from getAllTransaction to fix the 'any' error.
+// We assume the raw response has the same shape as TransactionItem but with Date objects
+// for createdAt.
+interface RawTransactionResponse {
+  id: string;
+  totalAmount: number;
+  createdAt: Date;
+  status: string;
+  orderId: string;
+  invoiceId?: string | null;
+  invoiceNumber?: string | null;
+  paymentLinkUrl?: string | null;
+  pdfUrl?: string | null;
+  transactionItems: Array<{
+    productId: string;
+    quantity: number;
   }>;
 }
 
@@ -41,15 +56,17 @@ const TransactionHistoryPage = () => {
     const fetchTransactions = async () => {
       setLoading(true);
       try {
-        // Asumsi getAllTransaction sekarang mengembalikan data dengan field invoice
-        const response: TransactionItem[] = await getAllTransaction();
-        setTransactions(response);
+        const response: RawTransactionResponse[] = await getAllTransaction();
+        const mappedResponse: TransactionItem[] = response.map((tx) => ({
+          ...tx,
+          createdAt: tx.createdAt instanceof Date ? tx.createdAt.toISOString() : tx.createdAt,
+        }));
+        setTransactions(mappedResponse);
 
-        // Ambil data produk untuk menampilkan nama item di dialog
         const productResponse = await getAllProduct();
         if (productResponse) {
-          setProducts(productResponse.map((
-            product: { id: string; name: string }) => ({ id: product.id, name: product.name })
+          setProducts(productResponse.map(
+            (product: { id: string; name: string }) => ({ id: product.id, name: product.name })
           ));
         }
       } catch (error) {
@@ -76,30 +93,30 @@ const TransactionHistoryPage = () => {
               <TableRow className="bg-secondary">
                 <TableHead>Order ID</TableHead>
                 <TableHead>Total Jumlah</TableHead>
-                <TableHead>Status</TableHead> 
+                <TableHead>Status</TableHead>
                 <TableHead>Tanggal</TableHead>
                 <TableHead>Item</TableHead>
-                <TableHead className="text-center">Aksi</TableHead> 
+                <TableHead className="text-center">Aksi</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {transactions.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground"> {/* Sesuaikan colSpan */}
+                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
                     Tidak ada transaksi ditemukan.
                   </TableCell>
                 </TableRow>
               ) : (
                 transactions.map((tx) => (
                   <TableRow key={tx.id} className="hover:bg-accent transition">
-                    <TableCell className="font-medium text-sm">{tx.orderId}</TableCell> {/* Tampilkan Order ID */}
+                    <TableCell className="font-medium text-sm">{tx.orderId}</TableCell>
                     <TableCell className="text-primary font-bold">Rp. {tx.totalAmount?.toLocaleString('id-ID') ?? tx.totalAmount}</TableCell>
                     <TableCell>
                       <span className={`px-2 py-1 rounded-full text-xs font-semibold bg-secondary text-white'
                         }`}>
                         PAID
                       </span>
-                    </TableCell> {/* Tampilkan Status */}
+                    </TableCell>
                     <TableCell className="text-sm text-muted-foreground">{tx.createdAt ? new Date(tx.createdAt).toLocaleString('id-ID') : '-'}</TableCell>
                     <TableCell>
                       <div className="flex flex-wrap gap-2">

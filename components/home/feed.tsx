@@ -18,7 +18,7 @@ const Feed = () => {
                 <CardContent className="relative z-10 text-right p-2 flex flex-col space-y-2 ml-20">
                     <div className="flex flex-col space-y-2 w-100 m-5 items-end">
                         <h1 className="text-xl md:text-3xl font-bold mb-2 drop-shadow-lg">
-                            Women's Fashion Sale
+                            Women Fashion Sale
                         </h1>
                         <p className="text-lg md:text-xl mb-3 font-medium drop-shadow">
                             UP TO 70% OFF
