@@ -13,6 +13,21 @@ interface TransactionWithUser extends Transaction {
   user: User | null
 }
 
+/**
+ * Fetches transactions and products, computes summary metrics and prepares dashboard data.
+ *
+ * Retrieves all transactions and products, then computes:
+ * - totalRevenue: sum of each transaction's `totalAmount` (0 if missing)
+ * - totalTransactions: number of transactions
+ * - averageOrderValue: totalRevenue divided by totalTransactions
+ * - topProducts: up to five products sorted by `sold`, each augmented with `totalRevenue = price * sold`
+ * - recentTransactions: five most recent transactions (sorted by `createdAt`)
+ * - salesData: a hard-coded monthly totals array used by the UI
+ *
+ * If products or transactions cannot be loaded, this function logs an error and returns `undefined`.
+ *
+ * @returns An object containing `totalRevenue`, `totalTransactions`, `averageOrderValue`, `salesData`, `topProducts`, and `recentTransactions`, or `undefined` when data cannot be fetched.
+ */
 async function getDashboardData() {
   const transactions: TransactionWithUser[] = await getAllTransaction()
   const products = await getAllProduct()

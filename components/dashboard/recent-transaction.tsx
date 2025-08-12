@@ -9,6 +9,17 @@ interface RecentTransactionsProps {
   transactions: TransactionWithUser[];
 }
 
+/**
+ * Render a list of recent transactions with user avatar, order info, date, and formatted amount.
+ *
+ * Renders each transaction as a row containing:
+ * - an avatar (falls back to the first two uppercase characters of the user's name or "-" when user is missing),
+ * - the order ID and a muted line with the user name (or "Unknown User") and the transaction date,
+ * - the total amount formatted for the Indonesian locale prefixed with "Rp".
+ *
+ * @param transactions - Array of transactions augmented with an optional `user` object; `user` may be null and is safely handled.
+ * @returns A JSX element containing the rendered list of transactions.
+ */
 export function RecentTransactions({ transactions }: RecentTransactionsProps) {
   return (
     <div className="space-y-8">
