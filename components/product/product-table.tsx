@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { Button } from '../ui/button';
-import { Edit2, Trash2 } from 'lucide-react';
-import axios from 'axios';
+import { Edit2 } from 'lucide-react';
 import { Skeleton } from '../ui/skeleton';
 import { capitalizeEachWord } from '@/lib/capitalized-word';
 import Link from 'next/link';

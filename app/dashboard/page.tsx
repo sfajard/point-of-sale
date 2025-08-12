@@ -1,4 +1,3 @@
-// src/app/page.tsx
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { OverviewCards } from "@/components/dashboard/overfiew-cards";
@@ -6,18 +5,15 @@ import { SalesChart } from "@/components/dashboard/sales-chart";
 import { TopProductsTable } from "@/components/dashboard/top-products-table";
 import { RecentTransactions } from "@/components/dashboard/recent-transaction";
 import { DateRangePickerWithPresets } from "@/components/dashboard/data-picker";
-import { Separator } from "@/components/ui/separator";
 import { getAllTransaction } from "@/lib/transaction";
-import { Transaction } from "@prisma/client";
+import { Transaction, User } from "@prisma/client";
 import { getAllProduct } from "@/lib/actions/product";
 
 interface TransactionWithUser extends Transaction {
-  user: {
-    name: string
-  }
+  user: User | null
 }
 
-async function getDashboardData(startDate?: Date, endDate?: Date) {
+async function getDashboardData() {
   const transactions: TransactionWithUser[] = await getAllTransaction()
   const products = await getAllProduct()
 

@@ -17,7 +17,6 @@ import {
 import { Input } from "@/components/ui/input"
 import { useState } from "react"
 import { createCategory } from "@/lib/actions/category"
-import { deleteOrphanImages } from "@/lib/actions/image"
 import { uploadImage } from "@/supabase/storage/client"
 import Image from "next/image"
 
@@ -31,7 +30,6 @@ interface InitialCategoryValue {
 
 const CategoryFormPage = () => {
     const [loading, setLoading] = useState(false)
-    const [imageUrls, setImageUrls] = useState<string[]>([])
       const [imageIds, setImageIds] = useState<string[]>([])
 
     const defaultFormValues: InitialCategoryValue = {
@@ -124,7 +122,6 @@ const CategoryFormPage = () => {
 
                                                     const newUrls = [...(field.value || []), ...uploadedUrls]
                                                     field.onChange(newUrls)
-                                                    setImageUrls(newUrls)
                                                     e.target.value = ""
                                                 }}
                                             />

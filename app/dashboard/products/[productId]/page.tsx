@@ -4,7 +4,6 @@ import { ProductForm } from '@/components/create-form'
 import { Button } from '@/components/ui/button'
 import { getProductById } from '@/lib/actions/product'
 import { Category, Image, Product } from '@prisma/client'
-import axios from 'axios'
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
@@ -23,7 +22,7 @@ interface ProductWithChilds extends Product {
     category: Category
 }
 
-const page = () => {
+const Page = () => {
     const [product, setProduct] = useState<ProductWithChilds | null>(null)
     const [loading, setLoading] = useState<boolean>(false)
     const params = useParams()
@@ -46,8 +45,9 @@ const page = () => {
     }
 
     useEffect(() => {
-        fetchProduct()
-        console.log(product)
+        if (productId) {
+            fetchProduct()
+        }
     }, [])
 
     if (loading) {
@@ -63,20 +63,22 @@ const page = () => {
         price: product.price,
         stock: product.stock,
         isFeatured: product.isFeatured,
-        categoryId: product.categoryId
+        categoryId: product.categoryId,
     }
 
     return (
         <div>
-            <div className='flex justify-between'>
+            <div className="flex justify-between">
                 <h1 className="text-xl font-bold mb-4">Add Product</h1>
-                <Button variant={'secondary'} className='cursor-pointer'>
-                    <Link className='flex align-middle items-center' href={'/dashboard/products'}><ArrowLeft /> Product List</Link>
+                <Button variant={'secondary'} className="cursor-pointer">
+                    <Link className="flex align-middle items-center" href={'/dashboard/products'}>
+                        <ArrowLeft /> Product List
+                    </Link>
                 </Button>
             </div>
-            <ProductForm initialProductValue={initialProductValue} action='update' productId={productId} />
+            <ProductForm initialProductValue={initialProductValue} action="update" productId={productId} />
         </div>
     )
 }
 
-export default page
+export default Page

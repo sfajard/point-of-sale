@@ -6,12 +6,6 @@ export default function DashboardLayout({
 }: {
     children: React.ReactNode;
 }) {
-    const currentUser = {
-        email: "user@example.com",
-        name: "John Doe",
-        avatar: "https://github.com/shadcn.png",
-    };
-
     return (
         <SidebarProvider>
             <div className="flex min-h-screen min-w-screen">

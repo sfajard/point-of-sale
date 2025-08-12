@@ -10,7 +10,7 @@ interface ProductWithImages extends Product {
     imageUrls: { url: string }[]
 }
 
-const page = () => {
+const Page = () => {
     const [products, setProducts] = useState<ProductWithImages[]>([])
     const searchParams = useSearchParams()
     const search = searchParams.get('search')
@@ -28,7 +28,7 @@ const page = () => {
                 }
             }
         } catch (error) {
-            console.log('error fetching data')
+            throw new Error('Failed to fetch products: ' + error)
         }
     }
 
@@ -42,4 +42,4 @@ const page = () => {
     )
 }
 
-export default page
+export default Page

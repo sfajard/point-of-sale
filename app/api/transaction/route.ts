@@ -1,7 +1,8 @@
-const prisma = new PrismaClient();
 import { NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import { Snap } from 'midtrans-client';
+
+const prisma = new PrismaClient();
 
 export const GET = async () => {
     try {
@@ -77,14 +78,14 @@ export const POST = async (request: Request) => {
             }
         });
 
-        let snap = new Snap({
-            isProduction: false, 
+        const snap = new Snap({
+            isProduction: false,
             serverKey: process.env.MIDTRANS_SERVER_KEY as string
         });
 
-        let parameter = {
+        const parameter = {
             transaction_details: {
-                order_id: newTransaction.orderId, 
+                order_id: newTransaction.orderId,
                 gross_amount: grossAmount
             },
             credit_card: {
@@ -133,7 +134,7 @@ export const POST = async (request: Request) => {
         }, { status: 200 });
 
     } catch (error) {
-        console.error('Error processing transaction:', error); // More specific error message
-        return NextResponse.json({ error: 'Failed to process transaction' }, { status: 500 }); // Return an error response
+        console.error('Error processing transaction:', error);
+        return NextResponse.json({ error: 'Failed to process transaction' }, { status: 500 });
     }
 };
