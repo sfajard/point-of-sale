@@ -22,6 +22,18 @@ export const metadata: Metadata = {
   description: "A simple e-commerce application built with Next.js",
 };
 
+/**
+ * Root layout component for the application.
+ *
+ * Fetches the current session via `auth()` and returns the top-level HTML structure that:
+ * - applies global fonts and `antialiased` styling to the <body>,
+ * - provides theme context via `ThemeProvider` (system default, transitions disabled),
+ * - provides authentication session via `SessionProvider`,
+ * - renders the `Navbar`, the page `children`, and a `Toaster` for notifications.
+ *
+ * @param children - The page content to render inside the layout.
+ * @returns A React element representing the application's root HTML and body structure.
+ */
 export default async function RootLayout({
   children,
 }: Readonly<{
